@@ -1,0 +1,18 @@
+{
+  "files": [
+    ".env.example",
+    ".gitignore",
+    "IMAGE_SOURCES.md",
+    "README.md",
+    "__pycache__/app.cpython-313.pyc",
+    "app.py",
+    "knowledge_base.md",
+    "requirements.txt",
+    "static/css/style.css",
+    "static/js/app.js",
+    "templates/index.html"
+  ],
+  "validated": [
+    "app.py syntax"
+  ]
+}
