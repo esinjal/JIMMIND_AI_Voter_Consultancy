@@ -1,10 +1,12 @@
 import os
-import sqlite3
 from pathlib import Path
 from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
+
+from pymongo import MongoClient, ASCENDING
+from pymongo.errors import PyMongoError
 
 try:
     from openai import OpenAI
@@ -12,7 +14,6 @@ except ImportError:
     OpenAI = None
 
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "jimmind.db"
 KNOWLEDGE_PATH = BASE_DIR / "knowledge_base.md"
 
 load_dotenv(BASE_DIR / ".env")
@@ -20,37 +21,26 @@ load_dotenv(BASE_DIR / ".env")
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
 
+# ---------------------------------------------------------------------------
+# MongoDB setup
+# ---------------------------------------------------------------------------
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017").strip()
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "jimmind").strip() or "jimmind"
 
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+mongo_client = MongoClient(MONGO_URI)
+db = mongo_client[MONGO_DB_NAME]
+
+service_inquiries_col = db["service_inquiries"]
+clients_col = db["clients"]
 
 
 def init_db():
-    with get_db() as conn:
-        conn.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS service_inquiries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                mobile TEXT NOT NULL,
-                city TEXT NOT NULL,
-                service TEXT NOT NULL,
-                language TEXT NOT NULL DEFAULT 'en',
-                created_at TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS clients (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                mobile TEXT NOT NULL UNIQUE,
-                city TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
-            """
-        )
+    """Ensure indexes exist (Mongo creates collections lazily on first write)."""
+    # Unique index on mobile for clients, mirroring the old SQLite UNIQUE constraint.
+    clients_col.create_index([("mobile", ASCENDING)], unique=True)
+    # Helpful index for querying inquiries by mobile/created_at.
+    service_inquiries_col.create_index([("mobile", ASCENDING)])
+    service_inquiries_col.create_index([("created_at", ASCENDING)])
 
 
 def load_knowledge():
@@ -76,26 +66,40 @@ def save_inquiry(data):
         return False, "Please enter a valid name, 10-digit mobile number, city and service."
 
     now = datetime.now(timezone.utc).isoformat()
-    with get_db() as conn:
-        conn.execute(
-            """
-            INSERT INTO service_inquiries
-            (name, mobile, city, service, language, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (name, mobile, city, service, language, now),
+
+    try:
+        service_inquiries_col.insert_one(
+            {
+                "name": name,
+                "mobile": mobile,
+                "city": city,
+                "service": service,
+                "language": language,
+                "created_at": now,
+            }
         )
-        conn.execute(
-            """
-            INSERT INTO clients (name, mobile, city, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(mobile) DO UPDATE SET
-                name=excluded.name,
-                city=excluded.city,
-                updated_at=excluded.updated_at
-            """,
-            (name, mobile, city, now, now),
+
+        # Upsert into clients, keyed on unique mobile number (mirrors the old
+        # SQLite "ON CONFLICT(mobile) DO UPDATE" behavior).
+        clients_col.update_one(
+            {"mobile": mobile},
+            {
+                "$set": {
+                    "name": name,
+                    "city": city,
+                    "updated_at": now,
+                },
+                "$setOnInsert": {
+                    "mobile": mobile,
+                    "created_at": now,
+                },
+            },
+            upsert=True,
         )
+    except PyMongoError:
+        app.logger.exception("MongoDB write error while saving inquiry")
+        return False, "Something went wrong while saving your inquiry. Please try again."
+
     return True, "Inquiry submitted successfully."
 
 
@@ -106,7 +110,12 @@ def index():
 
 @app.get("/health")
 def health():
-    return jsonify({"status": "ok", "database": DB_PATH.name})
+    try:
+        mongo_client.admin.command("ping")
+        db_status = "ok"
+    except PyMongoError:
+        db_status = "unreachable"
+    return jsonify({"status": "ok", "database": MONGO_DB_NAME, "mongo": db_status})
 
 
 @app.post("/api/inquiry")
@@ -120,7 +129,6 @@ def inquiry():
 def chat():
     data = request.get_json(silent=True) or {}
     user_message = str(data.get("message", "")).strip()
-
     if not user_message:
         return jsonify({"ok": False, "message": "Please enter a question."}), 400
 
@@ -183,7 +191,7 @@ Answer strictly from the knowledge document. If the requested information is out
         app.logger.exception("OpenAI chatbot error")
         return jsonify({
             "ok": False,
-            "message": "I’m unable to answer right now. Please try again or submit a service inquiry."
+            "message": "I'm unable to answer right now. Please try again or submit a service inquiry."
         }), 502
 
 
