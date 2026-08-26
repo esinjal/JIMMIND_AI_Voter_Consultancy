@@ -1,9 +1,12 @@
 import os
 from pathlib import Path
 from datetime import datetime, timezone
+import csv
+import io
+import hmac
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for, Response
 
 from pymongo import MongoClient, ASCENDING
 from pymongo.errors import PyMongoError
@@ -20,6 +23,20 @@ load_dotenv(BASE_DIR / ".env")
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
+app.secret_key = os.getenv("SESSION_SECRET", "change-this-session-secret")
+app.config["PERMANENT_SESSION_LIFETIME"] = 28800
+
+def admin_password_configured():
+    return bool(os.getenv("ADMIN_PASSWORD", "").strip())
+
+def admin_logged_in():
+    return session.get("admin_authenticated") is True
+
+def require_admin():
+    if not admin_logged_in():
+        return redirect(url_for("admin_login"))
+    return None
+
 
 # ---------------------------------------------------------------------------
 # MongoDB setup
@@ -107,6 +124,68 @@ def save_inquiry(data):
 def index():
     return render_template("index.html")
 
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    error = None
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        configured = os.getenv("ADMIN_PASSWORD", "")
+        if configured and hmac.compare_digest(password, configured):
+            session.clear()
+            session["admin_authenticated"] = True
+            session.permanent = True
+            return redirect(url_for("admin_dashboard"))
+        error = "Invalid admin password." if configured else "ADMIN_PASSWORD is not configured in .env."
+    return render_template("admin_login.html", error=error)
+
+@app.get("/admin/logout")
+def admin_logout():
+    session.clear()
+    return redirect(url_for("admin_login"))
+
+@app.get("/admin")
+def admin_dashboard():
+    gate = require_admin()
+    if gate: return gate
+    q = request.args.get("q", "").strip()
+    service = request.args.get("service", "").strip()
+    with get_db() as conn:
+        clauses, params = [], []
+        if q:
+            clauses.append("(name LIKE ? OR mobile LIKE ? OR city LIKE ? OR service LIKE ?)")
+            params.extend([f"%{q}%"] * 4)
+        if service:
+            clauses.append("service = ?")
+            params.append(service)
+        where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+        rows = conn.execute(f"SELECT * FROM service_inquiries{where} ORDER BY id DESC", params).fetchall()
+        total = conn.execute("SELECT COUNT(*) FROM service_inquiries").fetchone()[0]
+        clients = conn.execute("SELECT COUNT(*) FROM clients").fetchone()[0]
+        services = conn.execute("SELECT service, COUNT(*) count FROM service_inquiries GROUP BY service ORDER BY count DESC").fetchall()
+    return render_template("admin.html", inquiries=rows, total=total, clients=clients, services=services, q=q, selected_service=service)
+
+@app.get("/admin/export.csv")
+def admin_export():
+    gate = require_admin()
+    if gate: return gate
+    q = request.args.get("q", "").strip()
+    service = request.args.get("service", "").strip()
+    with get_db() as conn:
+        clauses, params = [], []
+        if q:
+            clauses.append("(name LIKE ? OR mobile LIKE ? OR city LIKE ? OR service LIKE ?)")
+            params.extend([f"%{q}%"] * 4)
+        if service:
+            clauses.append("service = ?")
+            params.append(service)
+        where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+        rows = conn.execute(f"SELECT id,name,mobile,city,service,language,created_at FROM service_inquiries{where} ORDER BY id DESC", params).fetchall()
+    out = io.StringIO()
+    writer = csv.writer(out)
+    writer.writerow(["ID","Name","Mobile","City","Service","Language","Created At (UTC)"])
+    for r in rows: writer.writerow([r[k] for k in r.keys()])
+    return Response("\ufeff" + out.getvalue(), mimetype="text/csv", headers={"Content-Disposition":"attachment; filename=jimmind_service_inquiries.csv"})
 
 @app.get("/health")
 def health():
@@ -196,6 +275,13 @@ Answer strictly from the knowledge document. If the requested information is out
 
 
 init_db()
+
+
+@app.route("/download")
+def download():
+    from flask import send_from_directory
+    return send_from_directory(app.root_path, "README.md", as_attachment=True, download_name="JIMMIND_AI_README.md")
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))

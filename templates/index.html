@@ -12,6 +12,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+<div class="admin-login-top">
+  <a href="/admin/login" class="admin-login-btn" aria-label="Admin Login">Admin Login</a>
+</div>
+
   <div class="scroll-progress" id="scrollProgress"></div>
 
   <header class="site-header" id="top">
@@ -170,6 +174,10 @@
     </section>
 
     <section class="section contact-section" id="contact">
+<div class="footer-download">
+  <a href="/download" class="footer-download-btn" download aria-label="Download">Download</a>
+</div>
+
       <div class="container contact-layout">
         <div class="contact-copy reveal">
           <span class="eyebrow" data-i18n="contact_eyebrow">START A REQUEST</span>
@@ -205,7 +213,7 @@
     <div class="container footer-grid">
       <div><a class="brand footer-brand" href="#top"><span class="brand-mark">JM</span><span><strong>JIMMIND</strong><small>AI • CONSULTANCY</small></span></a><p data-i18n="footer_text">Private assistance for selected voter services. Not a government office.</p></div>
       <div><span class="footer-label">SERVICES</span><a href="#services" data-i18n="s1_title">New voter card</a><a href="#services" data-i18n="s2_title">Voter card correction</a><a href="#services" data-i18n="s3_title">Mobile number update</a></div>
-      <div><span class="footer-label">CONTACT</span><a href="#contact" data-i18n="nav_contact">Service inquiry</a><button class="footer-chat" type="button" data-chat-open data-i18n="footer_chat">Chat with JIMMIND AI</button></div>
+      <div><span class="footer-label">CONTACT</span><a href="#contact" data-i18n="nav_contact">Service inquiry</a><button class="footer-chat" type="button" data-chat-open data-i18n="footer_chat">Chat with JIMMIND AI</button><a class="admin-login-link" href="/admin/login">Admin Login</a></div>
     </div>
     <div class="container footer-bottom"><span>© 2026 JIMMIND AI</span><span data-i18n="footer_note">Consultation fees are separate from any applicable government charges.</span></div>
   </footer>
