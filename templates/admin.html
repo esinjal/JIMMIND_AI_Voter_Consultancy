@@ -1,1 +1,67 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JIMMIND AI Admin</title><link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}"></head><body><header class="admin-nav"><a href="/admin" class="brand"><span>JM</span><b>JIMMIND AI</b><small>ADMIN</small></a><div><a href="/" target="_blank">View site</a><a href="/admin/logout">Logout</a></div></header><main class="admin-main"><div class="heading"><div><p class="eyebrow">CONTROL CENTER</p><h1>Service inquiries</h1><p class="muted">Search, review and export voter-service requests.</p></div><a class="export" href="/admin/export.csv?q={{ q|urlencode }}&service={{ selected_service|urlencode }}">↓ Export CSV</a></div><section class="stats"><div><span>Total inquiries</span><strong>{{ total }}</strong></div><div><span>Unique clients</span><strong>{{ clients }}</strong></div><div><span>Showing</span><strong>{{ inquiries|length }}</strong></div></section><form class="filters" method="get"><input name="q" value="{{ q }}" placeholder="Search name, mobile, city or service…"><select name="service"><option value="">All services</option>{% for s in services %}<option value="{{ s['service'] }}" {% if selected_service == s['service'] %}selected{% endif %}>{{ s['service'] }} ({{ s['count'] }})</option>{% endfor %}</select><button>Search</button>{% if q or selected_service %}<a href="/admin">Clear</a>{% endif %}</form><div class="table-wrap"><table><thead><tr><th>ID</th><th>Client</th><th>Mobile</th><th>City</th><th>Service</th><th>Language</th><th>Submitted</th></tr></thead><tbody>{% for r in inquiries %}<tr><td>#{{ r['id'] }}</td><td><strong>{{ r['name'] }}</strong></td><td><a href="tel:{{ r['mobile'] }}">{{ r['mobile'] }}</a></td><td>{{ r['city'] }}</td><td><span class="pill">{{ r['service'] }}</span></td><td>{{ r['language']|upper }}</td><td>{{ r['created_at'][:19].replace('T',' ') }}</td></tr>{% else %}<tr><td colspan="7" class="empty">No inquiries match your search.</td></tr>{% endfor %}</tbody></table></div><p class="security-note">Admin access is password-protected. Keep <code>ADMIN_PASSWORD</code> and <code>SESSION_SECRET</code> in your server environment and never commit <code>.env</code>.</p></main></body></html>
+
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>JIMMIND AI Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+    <header class="admin-nav"><a href="/admin" class="brand"><span>JM</span><b>JIMMIND AI</b><small>ADMIN</small></a>
+        <div><a href="/home" target="_blank">View site</a><a href="/admin/logout">Logout</a></div>
+    </header>
+    <main class="admin-main">
+        <div class="heading">
+            <div>
+                <p class="eyebrow">CONTROL CENTER</p>
+                <h1>Service inquiries</h1>
+                <p class="muted">Search, review and export voter-service requests.</p>
+            </div><a class="export"
+                href="/admin/export.csv?q={{ q|urlencode }}&service={{ selected_service|urlencode }}">↓ Export CSV</a>
+        </div>
+        <section class="stats">
+            <div><span>Total inquiries</span><strong>{{ total }}</strong></div>
+            <div><span>Unique clients</span><strong>{{ clients }}</strong></div>
+            <div><span>Showing</span><strong>{{ inquiries|length }}</strong></div>
+        </section>
+        <form class="filters" method="get"><input name="q" value="{{ q }}"
+                placeholder="Search name, mobile, city or service…"><select name="service">
+                <option value="">All services</option>{% for s in services %}<option value="{{ s['service'] }}" {% if
+                    selected_service==s['service'] %}selected{% endif %}>{{ s['service'] }} ({{ s['count'] }})</option>
+                {% endfor %}
+            </select><button>Search</button>{% if q or selected_service %}<a href="/admin">Clear</a>{% endif %}</form>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Mobile</th>
+                        <th>City</th>
+                        <th>Service</th>
+                        <th>Language</th>
+                        <th>Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>{% for r in inquiries %}<tr>
+                        <td>#{{ loop.index }}</td>
+                        <td><strong>{{ r['name'] }}</strong></td>
+                        <td><a href="tel:{{ r['mobile'] }}">{{ r['mobile'] }}</a></td>
+                        <td>{{ r['city'] }}</td>
+                        <td><span class="pill">{{ r['service'] }}</span></td>
+                        <td>{{ r['language']|upper }}</td>
+                        <td>{{ r['created_at'][:19].replace('T',' ') }}</td>
+                    </tr>{% else %}<tr>
+                        <td colspan="7" class="empty">No inquiries match your search.</td>
+                    </tr>{% endfor %}</tbody>
+            </table>
+        </div>
+        <p class="security-note">Admin access is password-protected. Keep <code>ADMIN_PASSWORD</code> and
+            <code>SESSION_SECRET</code> in your server environment and never commit <code>.env</code>.</p>
+    </main>
+</body>
+
+</html>

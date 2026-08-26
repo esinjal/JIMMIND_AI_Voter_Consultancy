@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from datetime import datetime, timezone
 import csv
@@ -121,7 +122,13 @@ def save_inquiry(data):
 
 
 @app.get("/")
-def index():
+def landing():
+    """Entry gate. Visitors can Skip straight to the main site."""
+    return render_template("login.html")
+
+
+@app.get("/home")
+def home():
     return render_template("index.html")
 
 
@@ -144,25 +151,55 @@ def admin_logout():
     session.clear()
     return redirect(url_for("admin_login"))
 
+def _build_inquiry_query(q, service):
+    """Build a MongoDB filter mirroring the old SQLite LIKE/AND search."""
+    clauses = []
+    if q:
+        pattern = {"$regex": re.escape(q), "$options": "i"}
+        clauses.append({"$or": [
+            {"name": pattern}, {"mobile": pattern}, {"city": pattern}, {"service": pattern},
+        ]})
+    if service:
+        clauses.append({"service": service})
+    if not clauses:
+        return {}
+    if len(clauses) == 1:
+        return clauses[0]
+    return {"$and": clauses}
+
+
+def _serialize_inquiry(doc):
+    return {
+        "id": str(doc.get("_id", "")),
+        "name": doc.get("name", ""),
+        "mobile": doc.get("mobile", ""),
+        "city": doc.get("city", ""),
+        "service": doc.get("service", ""),
+        "language": doc.get("language", "en"),
+        "created_at": doc.get("created_at", ""),
+    }
+
+
 @app.get("/admin")
 def admin_dashboard():
     gate = require_admin()
     if gate: return gate
     q = request.args.get("q", "").strip()
     service = request.args.get("service", "").strip()
-    with get_db() as conn:
-        clauses, params = [], []
-        if q:
-            clauses.append("(name LIKE ? OR mobile LIKE ? OR city LIKE ? OR service LIKE ?)")
-            params.extend([f"%{q}%"] * 4)
-        if service:
-            clauses.append("service = ?")
-            params.append(service)
-        where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
-        rows = conn.execute(f"SELECT * FROM service_inquiries{where} ORDER BY id DESC", params).fetchall()
-        total = conn.execute("SELECT COUNT(*) FROM service_inquiries").fetchone()[0]
-        clients = conn.execute("SELECT COUNT(*) FROM clients").fetchone()[0]
-        services = conn.execute("SELECT service, COUNT(*) count FROM service_inquiries GROUP BY service ORDER BY count DESC").fetchall()
+
+    query = _build_inquiry_query(q, service)
+    cursor = service_inquiries_col.find(query).sort("created_at", -1)
+    rows = [_serialize_inquiry(doc) for doc in cursor]
+
+    total = service_inquiries_col.count_documents({})
+    clients = clients_col.count_documents({})
+
+    services_agg = service_inquiries_col.aggregate([
+        {"$group": {"_id": "$service", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+    ])
+    services = [{"service": s["_id"], "count": s["count"]} for s in services_agg]
+
     return render_template("admin.html", inquiries=rows, total=total, clients=clients, services=services, q=q, selected_service=service)
 
 @app.get("/admin/export.csv")
@@ -171,20 +208,16 @@ def admin_export():
     if gate: return gate
     q = request.args.get("q", "").strip()
     service = request.args.get("service", "").strip()
-    with get_db() as conn:
-        clauses, params = [], []
-        if q:
-            clauses.append("(name LIKE ? OR mobile LIKE ? OR city LIKE ? OR service LIKE ?)")
-            params.extend([f"%{q}%"] * 4)
-        if service:
-            clauses.append("service = ?")
-            params.append(service)
-        where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
-        rows = conn.execute(f"SELECT id,name,mobile,city,service,language,created_at FROM service_inquiries{where} ORDER BY id DESC", params).fetchall()
+
+    query = _build_inquiry_query(q, service)
+    cursor = service_inquiries_col.find(query).sort("created_at", -1)
+
     out = io.StringIO()
     writer = csv.writer(out)
     writer.writerow(["ID","Name","Mobile","City","Service","Language","Created At (UTC)"])
-    for r in rows: writer.writerow([r[k] for k in r.keys()])
+    for doc in cursor:
+        r = _serialize_inquiry(doc)
+        writer.writerow([r["id"], r["name"], r["mobile"], r["city"], r["service"], r["language"], r["created_at"]])
     return Response("\ufeff" + out.getvalue(), mimetype="text/csv", headers={"Content-Disposition":"attachment; filename=jimmind_service_inquiries.csv"})
 
 @app.get("/health")
