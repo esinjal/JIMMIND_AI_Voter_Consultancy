@@ -110,3 +110,34 @@ The website explicitly describes JIMMIND AI as a private consultancy/service-ass
 ## Image sourcing
 
 See `IMAGE_SOURCES.md`. The site uses web-sourced voter imagery rather than generated placeholder graphics. CSS-generated 3D elements are used for decoration, so there are no missing local image assets.
+
+## Admin dashboard
+
+The website now includes a password-protected admin dashboard at `/admin`. It provides:
+
+- Admin login using `ADMIN_PASSWORD` from `.env`
+- Signed Flask session authentication
+- Dashboard totals for inquiries and unique clients
+- Search across name, mobile, city and service
+- Filter by service
+- Complete inquiry table
+- CSV export of the current filtered results
+- Logout
+
+Add these variables to `.env`:
+
+```env
+ADMIN_PASSWORD=use-a-strong-unique-password
+SESSION_SECRET=use-a-long-random-secret
+```
+
+After starting the server, open `http://127.0.0.1:5000/admin`.
+
+The admin dashboard reads directly from the same SQLite `service_inquiries` and `clients` tables used by the public inquiry form.
+
+For a public production deployment, use HTTPS and a strong random session secret. For higher-risk deployments, add CSRF protection, rate limiting, account lockout/MFA and role-based access.
+
+
+### Admin login
+
+The homepage footer includes an **Admin Login** link. You can also open `/admin/login` directly. The `/admin` URL redirects to the login page when not authenticated.

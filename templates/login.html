@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JIMMIND AI — Welcome</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="login-page">
+  <div class="login-card">
+    <div class="logo">JM</div>
+    <p class="eyebrow">JIMMIND AI</p>
+    <h1>Welcome</h1>
+    <p class="muted">Private assistance for selected voter services — not a government office.</p>
+    <a class="export" style="display:block;text-align:center;margin-top:24px" href="{{ url_for('home') }}">Skip →</a>
+    <a class="back" style="display:block;text-align:center;margin-top:16px" href="{{ url_for('admin_login') }}">Admin Login</a>
+  </div>
+</body>
+</html>

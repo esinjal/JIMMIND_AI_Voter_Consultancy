@@ -1,9 +1,13 @@
 import os
+import re
 from pathlib import Path
 from datetime import datetime, timezone
+import csv
+import io
+import hmac
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for, Response
 
 from pymongo import MongoClient, ASCENDING
 from pymongo.errors import PyMongoError
@@ -20,6 +24,20 @@ load_dotenv(BASE_DIR / ".env")
 
 app = Flask(__name__)
 app.config["JSON_SORT_KEYS"] = False
+app.secret_key = os.getenv("SESSION_SECRET", "change-this-session-secret")
+app.config["PERMANENT_SESSION_LIFETIME"] = 28800
+
+def admin_password_configured():
+    return bool(os.getenv("ADMIN_PASSWORD", "").strip())
+
+def admin_logged_in():
+    return session.get("admin_authenticated") is True
+
+def require_admin():
+    if not admin_logged_in():
+        return redirect(url_for("admin_login"))
+    return None
+
 
 # ---------------------------------------------------------------------------
 # MongoDB setup
@@ -104,9 +122,103 @@ def save_inquiry(data):
 
 
 @app.get("/")
-def index():
+def landing():
+    """Entry gate. Visitors can Skip straight to the main site."""
+    return render_template("login.html")
+
+
+@app.get("/home")
+def home():
     return render_template("index.html")
 
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    error = None
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        configured = os.getenv("ADMIN_PASSWORD", "")
+        if configured and hmac.compare_digest(password, configured):
+            session.clear()
+            session["admin_authenticated"] = True
+            session.permanent = True
+            return redirect(url_for("admin_dashboard"))
+        error = "Invalid admin password." if configured else "ADMIN_PASSWORD is not configured in .env."
+    return render_template("admin_login.html", error=error)
+
+@app.get("/admin/logout")
+def admin_logout():
+    session.clear()
+    return redirect(url_for("admin_login"))
+
+def _build_inquiry_query(q, service):
+    """Build a MongoDB filter mirroring the old SQLite LIKE/AND search."""
+    clauses = []
+    if q:
+        pattern = {"$regex": re.escape(q), "$options": "i"}
+        clauses.append({"$or": [
+            {"name": pattern}, {"mobile": pattern}, {"city": pattern}, {"service": pattern},
+        ]})
+    if service:
+        clauses.append({"service": service})
+    if not clauses:
+        return {}
+    if len(clauses) == 1:
+        return clauses[0]
+    return {"$and": clauses}
+
+
+def _serialize_inquiry(doc):
+    return {
+        "id": str(doc.get("_id", "")),
+        "name": doc.get("name", ""),
+        "mobile": doc.get("mobile", ""),
+        "city": doc.get("city", ""),
+        "service": doc.get("service", ""),
+        "language": doc.get("language", "en"),
+        "created_at": doc.get("created_at", ""),
+    }
+
+
+@app.get("/admin")
+def admin_dashboard():
+    gate = require_admin()
+    if gate: return gate
+    q = request.args.get("q", "").strip()
+    service = request.args.get("service", "").strip()
+
+    query = _build_inquiry_query(q, service)
+    cursor = service_inquiries_col.find(query).sort("created_at", -1)
+    rows = [_serialize_inquiry(doc) for doc in cursor]
+
+    total = service_inquiries_col.count_documents({})
+    clients = clients_col.count_documents({})
+
+    services_agg = service_inquiries_col.aggregate([
+        {"$group": {"_id": "$service", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+    ])
+    services = [{"service": s["_id"], "count": s["count"]} for s in services_agg]
+
+    return render_template("admin.html", inquiries=rows, total=total, clients=clients, services=services, q=q, selected_service=service)
+
+@app.get("/admin/export.csv")
+def admin_export():
+    gate = require_admin()
+    if gate: return gate
+    q = request.args.get("q", "").strip()
+    service = request.args.get("service", "").strip()
+
+    query = _build_inquiry_query(q, service)
+    cursor = service_inquiries_col.find(query).sort("created_at", -1)
+
+    out = io.StringIO()
+    writer = csv.writer(out)
+    writer.writerow(["ID","Name","Mobile","City","Service","Language","Created At (UTC)"])
+    for doc in cursor:
+        r = _serialize_inquiry(doc)
+        writer.writerow([r["id"], r["name"], r["mobile"], r["city"], r["service"], r["language"], r["created_at"]])
+    return Response("\ufeff" + out.getvalue(), mimetype="text/csv", headers={"Content-Disposition":"attachment; filename=jimmind_service_inquiries.csv"})
 
 @app.get("/health")
 def health():
@@ -196,6 +308,13 @@ Answer strictly from the knowledge document. If the requested information is out
 
 
 init_db()
+
+
+@app.route("/download")
+def download():
+    from flask import send_from_directory
+    return send_from_directory(app.root_path, "README.md", as_attachment=True, download_name="JIMMIND_AI_README.md")
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
