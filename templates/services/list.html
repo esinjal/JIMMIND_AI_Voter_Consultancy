@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Voter Services | JIMMIND AI{% endblock %}
+{% block meta_description %}JIMMIND AI voter services.{% endblock %}
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow" data-i18n="services_eyebrow">WHAT WE HELP WITH</span>
+    <h1 data-i18n="services_title">Voter services, done simply.</h1>
+    <p data-i18n="services_lead">Clear assistance and a better consultation experience for every voter-record request.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="service-grid">
+      {% for slug, s in services.items() %}
+      <article class="service-card reveal">
+        <div class="service-no">{{ s.no }}</div><div class="service-icon">{{ s.icon }}</div>
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.short }}</p>
+        <div class="service-fee-tag">{{ s.fee_range }} <small>depending on request type</small></div>
+        <a href="{{ url_for('service_detail', slug=slug) }}" class="card-link">View details →</a>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section dark-section" id="process">
+  <div class="container">
+    <div class="section-heading light reveal">
+      <span class="eyebrow">THE JIMMIND FLOW</span>
+      <h2 data-i18n="process_title">Simple by design. Precise by process.</h2>
+      <p><a href="{{ url_for('process_page') }}" class="text-link-light">See the full process →</a></p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Contact &amp; Service Inquiry | JIMMIND AI{% endblock %}
+{% block meta_description %}Start a JIMMIND AI voter service inquiry — share your name, mobile number, city and the service you need.{% endblock %}
+{% block content %}
+
+<section class="section contact-section" id="contact">
+  <div class="container contact-layout">
+    <div class="contact-copy reveal">
+      <span class="eyebrow" data-i18n="contact_eyebrow">START A REQUEST</span>
+      <h2 data-i18n="contact_title">Tell us what you need.</h2>
+      <p data-i18n="contact_text">Share the basics below. A JIMMIND AI consultant can use your inquiry to understand the requested voter service.</p>
+      <div class="contact-points">
+        <span>✓ <b data-i18n="cp1">Bilingual assistance</b></span>
+        <span>✓ <b data-i18n="cp2">Focused on voter services</b></span>
+        <span>✓ <b data-i18n="cp3">Clear consultation fees</b></span>
+      </div>
+      <div class="contact-direct">
+        <h3 data-i18n="contact_direct_title">Prefer to reach us directly?</h3>
+        <a href="mailto:hello@jimmind.ai">hello@jimmind.ai</a>
+        <button type="button" class="text-link" data-chat-open data-i18n="hero_chat">Ask the AI assistant</button>
+      </div>
+    </div>
+    {% include "partials/inquiry_form.html" with context %}
+  </div>
+</section>
+
+{% endblock %}

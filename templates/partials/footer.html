@@ -1,0 +1,43 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="brand footer-brand" href="{{ url_for('home') }}">
+        <span class="brand-mark">JM</span>
+        <span><strong>JIMMIND</strong><small>AI • CONSULTANCY</small></span>
+      </a>
+      <p data-i18n="footer_text">Private assistance for selected voter services. Not a government office.</p>
+      <a class="admin-login-link" href="{{ url_for('admin_login') }}">Admin Login</a>
+    </div>
+
+    <div>
+      <span class="footer-label" data-i18n="footer_services_label">SERVICES</span>
+      {% for key, rt in nav_request_types.items() %}
+      <a href="{{ url_for('service_detail', slug='voter-service') }}?type={{ key }}">{{ rt.title }}</a>
+      {% endfor %}
+    </div>
+
+    <div>
+      <span class="footer-label" data-i18n="footer_tools_label">TOOLS</span>
+      {% if nav_tools %}
+        {% for slug, t in nav_tools.items() %}
+        <a href="{{ url_for('tool_detail', slug=slug) }}">{{ t.title }}</a>
+        {% endfor %}
+      {% else %}
+      <span class="footer-soon" data-i18n="footer_tools_soon">Coming soon</span>
+      {% endif %}
+    </div>
+
+    <div>
+      <span class="footer-label" data-i18n="footer_company_label">COMPANY</span>
+      <a href="{{ url_for('process_page') }}" data-i18n="nav_process">Process</a>
+      <a href="{{ url_for('fees_page') }}" data-i18n="nav_fees">Fees</a>
+      <a href="{{ url_for('contact_page') }}" data-i18n="nav_contact">Service inquiry</a>
+      <button class="footer-chat" type="button" data-chat-open data-i18n="footer_chat">Chat with JIMMIND AI</button>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <span data-i18n="footer_rights">© 2026 JIMMIND AI. All rights reserved.</span>
+    <span data-i18n="footer_note">Consultation fees are separate from any applicable government charges. JIMMIND AI is a private consultancy and is not affiliated with the Election Commission of India.</span>
+  </div>
+</footer>

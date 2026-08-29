@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ tool.title }} | JIMMIND AI Tools{% endblock %}
+{% block meta_description %}{{ tool.short }}{% endblock %}
+{% block content %}
+
+<section class="detail-hero">
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="{{ url_for('home') }}">Home</a> <span>/</span>
+      <a href="{{ url_for('tools_list') }}">Tools</a> <span>/</span>
+      <span>{{ tool.title }}</span>
+    </nav>
+    <div>
+      <span class="eyebrow">FREE TOOL {% if tool.status == 'coming-soon' %}• COMING SOON{% endif %}</span>
+      <h1><span class="detail-icon">{{ tool.icon }}</span>{{ tool.title }}</h1>
+      <p class="detail-lead">{{ tool.summary }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="tool-widget-card reveal">
+
+      {% if tool.kind == 'epic_checker' %}
+        <label class="tool-field-label" for="epicInput">Voter ID / EPIC number</label>
+        <div class="tool-input-row">
+          <input id="epicInput" placeholder="e.g. ABC1234567" maxlength="20" autocomplete="off">
+          <button class="btn btn-primary" type="button" id="epicCheckBtn">Check format</button>
+        </div>
+        <div class="tool-result" id="epicResult" role="status" aria-live="polite"></div>
+        <p class="tool-disclaimer">This checks the format only (3 letters + 7 digits). It does not confirm whether the number is registered or active.</p>
+
+      {% elif tool.kind == 'fee_estimator' %}
+        <p class="tool-field-label">Select the request types you need</p>
+        <div class="fee-estimator-options" id="feeOptions">
+          {% for key, rt in nav_request_types.items() %}
+          <label class="fee-option">
+            <input type="checkbox" value="{{ rt.fee }}" data-title="{{ rt.title }}">
+            <span>{{ rt.title }}</span>
+            <strong>{{ rt.fee }}</strong>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="fee-estimator-total">
+          <span>Estimated total</span>
+          <strong id="feeTotal">₹0</strong>
+        </div>
+        <p class="tool-disclaimer">Estimate only. Any separate government fee, if applicable, is not included.</p>
+        <a class="btn btn-primary" href="{{ url_for('contact_page') }}" id="feeEstimatorCta">Start a service inquiry →</a>
+
+      {% else %}
+        <div class="coming-soon-block">
+          <span class="badge badge-soon">Coming soon</span>
+          <p>We're building this tool next. In the meantime, our consultants can help manually — start a service inquiry and mention which documents you'd like checked.</p>
+          <a class="btn btn-primary" href="{{ url_for('contact_page') }}">Start a service inquiry →</a>
+        </div>
+      {% endif %}
+
+    </div>
+
+    <aside class="mini-card" style="max-width:520px;margin:32px auto 0">
+      <h3>Other tools</h3>
+      {% for slug, t in nav_tools.items() if slug != tool.slug %}
+      <a class="mini-card-link" href="{{ url_for('tool_detail', slug=slug) }}">
+        <span>{{ t.icon }}</span><span><b>{{ t.title }}</b><small>{{ 'Coming soon' if t.status == 'coming-soon' else 'Free tool' }}</small></span>
+      </a>
+      {% endfor %}
+    </aside>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // --- EPIC / Voter ID format checker -------------------------------------
+  var epicBtn = document.getElementById('epicCheckBtn');
+  if (epicBtn) {
+    var run = function () {
+      var val = (document.getElementById('epicInput').value || '').trim().toUpperCase();
+      var result = document.getElementById('epicResult');
+      var pattern = /^[A-Z]{3}[0-9]{7}$/;
+      if (!val) {
+        result.className = 'tool-result';
+        result.textContent = 'Enter a Voter ID / EPIC number to check.';
+        return;
+      }
+      if (pattern.test(val)) {
+        result.className = 'tool-result tool-result-ok';
+        result.textContent = '✓ "' + val + '" matches the standard EPIC format (3 letters + 7 digits).';
+      } else {
+        result.className = 'tool-result tool-result-bad';
+        result.textContent = '✕ "' + val + '" does not match the standard EPIC format (3 letters + 7 digits). Double-check for typos.';
+      }
+    };
+    epicBtn.addEventListener('click', run);
+    document.getElementById('epicInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+  }
+
+  // --- Consultation fee estimator ------------------------------------------
+  var feeOptions = document.getElementById('feeOptions');
+  if (feeOptions) {
+    var total = document.getElementById('feeTotal');
+    var recompute = function () {
+      var sum = 0;
+      feeOptions.querySelectorAll('input[type=checkbox]:checked').forEach(function (cb) {
+        var n = parseInt((cb.value || '0').replace(/[^0-9]/g, ''), 10);
+        if (!isNaN(n)) sum += n;
+      });
+      total.textContent = '₹' + sum;
+    };
+    feeOptions.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+      cb.addEventListener('change', recompute);
+    });
+    recompute();
+  }
+});
+</script>
+{% endblock %}

@@ -11,9 +11,12 @@
 
 <body>
     <header class="admin-nav"><a href="/admin" class="brand"><span>JM</span><b>JIMMIND AI</b><small>ADMIN</small></a>
-        <div><a href="/home" target="_blank">View site</a><a href="/admin/logout">Logout</a></div>
+        <div><a href="{{ url_for('home') }}" target="_blank">View site</a><a href="{{ url_for('admin_logout') }}">Logout</a></div>
     </header>
     <main class="admin-main">
+        {% if db_error %}
+        <div class="db-error-banner">⚠ {{ db_error }}</div>
+        {% endif %}
         <div class="heading">
             <div>
                 <p class="eyebrow">CONTROL CENTER</p>

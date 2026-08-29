@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Payment | JIMMIND AI{% endblock %}
+{% block meta_description %}Consultation fee payment for JIMMIND AI voter services.{% endblock %}
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow" data-i18n="payment_eyebrow">CONSULTATION PAYMENT</span>
+    <h1 data-i18n="payment_title">Pay for your consultation.</h1>
+    <p data-i18n="payment_lead">Online payment collection is being finalised. For now, our consultant will confirm the payment method with you after you submit a service inquiry.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="payment-layout">
+      <div class="mini-card payment-summary">
+        <h3 data-i18n="payment_summary_title">Fee summary</h3>
+        {% if selected %}
+        <div class="fee-row"><span>{{ selected.title }}</span><strong>{{ selected.fee }}</strong></div>
+        {% else %}
+        {% for key, rt in request_types.items() %}
+        <div class="fee-row"><span>{{ rt.title }}</span><strong>{{ rt.fee }}</strong></div>
+        {% endfor %}
+        {% endif %}
+        <p class="tool-disclaimer" data-i18n="payment_disclaimer">These are JIMMIND AI consultation fees only. Any separate government fee, if applicable, is not included.</p>
+      </div>
+
+      <div class="mini-card payment-status">
+        <span class="badge badge-soon" data-i18n="payment_badge">Online payment coming soon</span>
+        <h3 data-i18n="payment_how_title">How payment works today</h3>
+        <ol class="detail-list detail-list-ordered">
+          <li data-i18n="payment_step1">Submit a service inquiry with your details.</li>
+          <li data-i18n="payment_step2">A JIMMIND AI consultant reviews your request.</li>
+          <li data-i18n="payment_step3">The consultant shares the confirmed fee and accepted payment method.</li>
+          <li data-i18n="payment_step4">You complete payment directly with the consultant before work begins.</li>
+        </ol>
+        <a class="btn btn-primary" href="{{ url_for('contact_page') }}" data-i18n="payment_cta">Start a service inquiry →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

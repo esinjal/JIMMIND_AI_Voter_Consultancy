@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Our Process | JIMMIND AI{% endblock %}
+{% block meta_description %}How the JIMMIND AI voter-service consultation flow works, from inquiry to follow-up.{% endblock %}
+{% block content %}
+
+<section class="page-hero dark-page-hero">
+  <div class="container">
+    <span class="eyebrow">THE JIMMIND FLOW</span>
+    <h1 data-i18n="process_title">Simple by design. Precise by process.</h1>
+    <p data-i18n="process_lead">Every voter service follows the same clear four-step flow, whichever service you choose.</p>
+  </div>
+</section>
+
+<section class="section dark-section" id="process">
+  <div class="container">
+    <div class="process-grid">
+      <div class="process-step reveal"><span>01</span><h3 data-i18n="p1_title">Tell us</h3><p data-i18n="p1_text">Submit your name, mobile number, city and the service you need.</p></div>
+      <div class="process-step reveal"><span>02</span><h3 data-i18n="p2_title">We review</h3><p data-i18n="p2_text">We understand your request and identify the right assistance flow.</p></div>
+      <div class="process-step reveal"><span>03</span><h3 data-i18n="p3_title">We guide</h3><p data-i18n="p3_text">You receive practical help to prepare and navigate the request.</p></div>
+      <div class="process-step reveal"><span>04</span><h3 data-i18n="p4_title">You retain</h3><p data-i18n="p4_text">Keep your acknowledgement or reference details for follow-up.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container cta-strip-inner reveal">
+    <div>
+      <span class="eyebrow">START NOW</span>
+      <h2>Ready to begin? Pick a service and start your request.</h2>
+    </div>
+    <div class="cta-strip-actions">
+      <a class="btn btn-primary" href="{{ url_for('services_list') }}">Browse services <span>↗</span></a>
+      <a class="btn btn-small btn-ghost" href="{{ url_for('contact_page') }}">Go to contact form</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -12,8 +12,50 @@
     <p class="eyebrow">JIMMIND AI</p>
     <h1>Welcome</h1>
     <p class="muted">Private assistance for selected voter services — not a government office.</p>
-    <a class="export" style="display:block;text-align:center;margin-top:24px" href="{{ url_for('home') }}">Skip →</a>
+    <a class="export" style="display:block;text-align:center;margin-top:24px" href="{{ url_for('home') }}">Select Services →</a>
     <a class="back" style="display:block;text-align:center;margin-top:16px" href="{{ url_for('admin_login') }}">Admin Login</a>
   </div>
 </body>
-</html>
+</html> -->
+
+{% extends "base.html" %}
+{% block title %}Login | JIMMIND AI{% endblock %}
+{% block meta_description %}Sign in to your JIMMIND AI account to track your voter-service requests.{% endblock %}
+{% block content %}
+
+<section class="auth-section">
+  <div class="container auth-wrap">
+    <div class="auth-card reveal">
+      <div class="brand-mark auth-mark">JM</div>
+      <span class="eyebrow">JIMMIND AI</span>
+      <h1 data-i18n="login_title">Welcome back</h1>
+      <p class="muted" data-i18n="login_lead">Private assistance for selected voter services — not a government office.</p>
+
+      <form class="auth-form" id="loginForm">
+        <label><span data-i18n="label_mobile">Mobile No.</span><input name="mobile" required inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit mobile number"></label>
+        <label><span data-i18n="login_password">Password</span><input type="password" name="password" required placeholder="••••••••"></label>
+        <button class="btn btn-primary btn-full" type="submit" data-i18n="login_submit">Sign in →</button>
+      </form>
+
+      <p class="auth-note" data-i18n="login_note">Client accounts are launching soon. Until then, every request is tracked by your mobile number through the service inquiry form.</p>
+
+      <div class="auth-links">
+        <a href="{{ url_for('contact_page') }}" data-i18n="login_start_instead">Start a service inquiry instead →</a>
+        <a href="{{ url_for('admin_login') }}" data-i18n="login_admin">Admin login</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>document.getElementById('loginForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var status = document.querySelector('.auth-note');
+  status.textContent = (window.jimmindLang === 'hi')
+    ? 'क्लाइंट लॉगिन जल्द ही उपलब्ध होगा। कृपया अभी सेवा अनुरोध फॉर्म का उपयोग करें।'
+    : "Client login isn't available yet. Please use the service inquiry form for now.";
+  status.classList.add('auth-note-active');
+});</script>
+{% endblock %}

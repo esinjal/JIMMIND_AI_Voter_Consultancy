@@ -1,0 +1,16 @@
+<form class="inquiry-form reveal" id="inquiryForm">
+  <label><span data-i18n="label_name">Name</span><input name="name" required maxlength="80" autocomplete="name" placeholder="Your full name"></label>
+  <label><span data-i18n="label_mobile">Mobile No.</span><input name="mobile" required inputmode="numeric" pattern="[0-9]{10}" maxlength="10" autocomplete="tel" placeholder="10-digit mobile number"></label>
+  <label><span data-i18n="label_city">City</span><input name="city" required maxlength="80" autocomplete="address-level2" placeholder="Your city"></label>
+  <label><span data-i18n="label_service">Request type</span>
+    <select name="service" id="serviceSelect" required>
+      <option value="" data-i18n="select_service" {{ 'selected' if not preselect }}>Select a request type</option>
+      {% for key, rt in nav_request_types.items() %}
+      <option value="{{ rt.form_value }}" {{ 'selected' if preselect and preselect.key == key }}>{{ rt.title }} ({{ rt.fee }})</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="btn btn-primary btn-full" type="submit" data-i18n="submit_btn">Submit service inquiry <span>→</span></button>
+  <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+  <small class="form-disclaimer" data-i18n="form_disclaimer">By submitting, you are requesting a consultation. Do not enter sensitive identity documents in this form.</small>
+</form>

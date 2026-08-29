@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Free Tools | JIMMIND AI{% endblock %}
+{% block meta_description %}Free self-serve tools from JIMMIND AI — launching soon.{% endblock %}
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow" data-i18n="tools_eyebrow">FREE, NO SIGN-UP</span>
+    <h1 data-i18n="tools_title">Tools that help you before you apply.</h1>
+    <p data-i18n="tools_lead">Quick, self-serve tools to check your details and plan your voter-service request. Tools are launching soon — check back here.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    {% if tools %}
+    <div class="tool-grid">
+      {% for slug, t in tools.items() %}
+      <article class="tool-card reveal">
+        <div class="tool-card-top">
+          <div class="tool-icon">{{ t.icon }}</div>
+          {% if t.status == 'coming-soon' %}<span class="badge badge-soon">Coming soon</span>{% else %}<span class="badge badge-live">Live</span>{% endif %}
+        </div>
+        <h3>{{ t.title }}</h3>
+        <p>{{ t.short }}</p>
+        <a href="{{ url_for('tool_detail', slug=slug) }}" class="card-link">{{ 'Preview' if t.status == 'coming-soon' else 'Open tool' }} →</a>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state reveal">
+      <span class="empty-state-icon">🛠️</span>
+      <h2 data-i18n="tools_empty_title">No tools yet — but they're on the way.</h2>
+      <p data-i18n="tools_empty_text">JIMMIND AI is starting with a focused voter service. Free self-serve tools (like a Voter ID format checker and a fee estimator) will appear here as they launch.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="{{ url_for('services_list') }}" data-i18n="tools_empty_cta">Browse the voter service <span>↗</span></a>
+        <a class="btn btn-small btn-ghost" href="{{ url_for('contact_page') }}" data-i18n="nav_contact">Contact</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}
