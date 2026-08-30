@@ -2,17 +2,17 @@
   <div class="container footer-grid">
     <div>
       <a class="brand footer-brand" href="{{ url_for('home') }}">
-        <span class="brand-mark">JM</span>
+        <span class="brand-mark"><img src="{{ url_for('static', filename='images/jimmind-logo.jpg') }}" alt="JIMMIND AI logo"></span>
         <span><strong>JIMMIND</strong><small>AI • CONSULTANCY</small></span>
       </a>
-      <p data-i18n="footer_text">Private assistance for selected voter services. Not a government office.</p>
+      <p data-i18n="footer_text">Private consultancy offering voter services, digital media support and website design. Not a government office.</p>
       <a class="admin-login-link" href="{{ url_for('admin_login') }}">Admin Login</a>
     </div>
 
     <div>
       <span class="footer-label" data-i18n="footer_services_label">SERVICES</span>
-      {% for key, rt in nav_request_types.items() %}
-      <a href="{{ url_for('service_detail', slug='voter-service') }}?type={{ key }}">{{ rt.title }}</a>
+      {% for slug, s in nav_services.items() %}
+      <a href="{{ url_for('service_detail', slug=slug) }}">{{ s.title }}</a>
       {% endfor %}
     </div>
 
@@ -38,6 +38,6 @@
 
   <div class="container footer-bottom">
     <span data-i18n="footer_rights">© 2026 JIMMIND AI. All rights reserved.</span>
-    <span data-i18n="footer_note">Consultation fees are separate from any applicable government charges. JIMMIND AI is a private consultancy and is not affiliated with the Election Commission of India.</span>
+    <span data-i18n="footer_note">Consultation fees are separate from any applicable government or third-party charges. JIMMIND AI is a private consultancy and is not affiliated with any government body.</span>
   </div>
 </footer>

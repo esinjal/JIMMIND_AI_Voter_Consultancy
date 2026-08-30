@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}JIMMIND AI | Voter Services Consultancy &amp; Free Tools{% endblock %}
+{% block title %}JIMMIND AI | Voter Services, Digital Media &amp; Website Design{% endblock %}
 {% block content %}
 
 <section class="hero section" id="home">
   <div class="hero-grid container">
     <div class="hero-copy reveal">
-      <div class="eyebrow"><span class="pulse"></span><span data-i18n="hero_eyebrow">PHASE 01 • VOTER SERVICES</span></div>
-      <h1 data-i18n="hero_title">Government-service assistance, <em>made clear.</em></h1>
-      <p class="hero-lead" data-i18n="hero_lead">JIMMIND AI helps you prepare and navigate selected voter-service requests with a simple, human-assisted consultation — and gives you free tools to check your details before you apply.</p>
+      <div class="eyebrow"><span class="pulse"></span><span data-i18n="hero_eyebrow">VOTER SERVICES • DIGITAL MEDIA • WEBSITES</span></div>
+      <h1 data-i18n="hero_title">Consultancy and creative help, <em>made clear.</em></h1>
+      <p class="hero-lead" data-i18n="hero_lead">JIMMIND AI helps with voter-service paperwork, digital media content and website design — through simple, human-assisted consultations, with free tools coming soon to help you prepare.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="{{ url_for('contact_page') }}" data-i18n="hero_cta">Get a consultation <span>↗</span></a>
         <button class="text-link" type="button" data-chat-open data-i18n="hero_chat">Ask the AI assistant</button>
@@ -31,22 +31,25 @@
         <div class="voter-card">
           <div class="card-head">
             <span class="emblem">✦</span>
-            <span>भारत निर्वाचन आयोग<br><b>ELECTION COMMISSION OF INDIA</b></span>
+            <span><br><b>JIM MIND AI</b></span>
           </div>
           <div class="card-body">
             <div class="portrait-ring">
-              <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Voter_Card.JPG" alt="Voter card reference image from Wikimedia Commons" loading="eager">
+              <img src="" alt="JIM MIND AI" loading="eager">
             </div>
             <div class="fake-lines">
-              <i></i><i></i><i></i><i></i>
+              <i>Voter Service</i>
+              <i>Digital Media</i>
+              <i>Website Design</i>
+              <i>AI Consultation</i>
             </div>
           </div>
-          <div class="card-code">EPIC • VOTER SERVICES</div>
+          <div class="card-code">Multi Service</div>
         </div>
       </div>
       <div class="glass-panel floating-panel panel-bottom">
         <span class="mini-chart"><i></i><i></i><i></i><i></i></span>
-        <span><strong data-i18n="panel_bottom_title">Voter Service</strong><small data-i18n="panel_bottom_sub">New • Correction • Mobile</small></span>
+        <span><strong data-i18n="panel_bottom_title">3 services, 1 team</strong><small data-i18n="panel_bottom_sub">Voter • Media • Web</small></span>
       </div>
     </div>
   </div>
@@ -56,7 +59,7 @@
 <section class="intro-strip">
   <div class="container intro-inner">
     <span class="intro-kicker" data-i18n="intro_kicker">ONE SIMPLE START</span>
-    <p data-i18n="intro_text">Tell us your name, mobile number and city. We’ll understand the voter service you need and guide you from there.</p>
+    <p data-i18n="intro_text">Tell us your name, mobile number and city. We’ll understand the service you need and guide you from there.</p>
     <a href="{{ url_for('contact_page') }}" class="arrow-link">→</a>
   </div>
 </section>
@@ -65,14 +68,14 @@
   <div class="container">
     <div class="section-heading reveal">
       <span class="eyebrow" data-i18n="platform_eyebrow">HOW JIMMIND AI WORKS</span>
-      <h2 data-i18n="platform_title">One platform, two ways to help.</h2>
-      <p data-i18n="platform_lead">JIMMIND AI is built to grow beyond voter services. Today it offers a focused voter-services consultancy plus a set of free self-serve tools, all from one account.</p>
+      <h2 data-i18n="platform_title">One platform, three services.</h2>
+      <p data-i18n="platform_lead">JIMMIND AI brings together voter-service consultancy, digital media content and website design under one platform, with free self-serve tools launching soon.</p>
     </div>
     <div class="feature-grid">
       <div class="feature-card reveal">
-        <div class="feature-icon">🗳️</div>
+        <div class="feature-icon">🤝</div>
         <h3 data-i18n="feature_services_title">Consultancy services</h3>
-        <p data-i18n="feature_services_text">Human-assisted help with new voter-card applications, corrections and mobile-number updates, with transparent consultation fees.</p>
+        <p data-i18n="feature_services_text">Human-assisted help across voter services, digital media content and website design — with transparent consultation fees.</p>
         <a href="{{ url_for('services_list') }}" class="card-link" data-i18n="feature_services_link">Browse services →</a>
       </div>
       <div class="feature-card reveal">
@@ -95,8 +98,8 @@
   <div class="container">
     <div class="section-heading reveal">
       <span class="eyebrow" data-i18n="services_eyebrow">WHAT WE HELP WITH</span>
-      <h2 data-i18n="services_title">One focused voter service.</h2>
-      <p data-i18n="services_lead">Phase 1 is deliberately focused: one service covering new voter card, correction and mobile-number update requests, with clearer assistance and a better consultation experience.</p>
+      <h2 data-i18n="services_title">Three services. One consultancy.</h2>
+      <p data-i18n="services_lead">Voter services, digital media content and website design — each with clear assistance and a transparent consultation fee.</p>
     </div>
     <div class="service-grid">
       {% for slug, s in nav_services.items() %}
@@ -119,7 +122,7 @@
     </div>
     <div class="quote-grid">
       <article class="quote-card reveal"><span class="quote-mark">“</span><p data-i18n="q1">The service flow is designed to make the next step obvious instead of overwhelming the client with forms and jargon.</p><div class="quote-person"><span class="avatar">JM</span><span><b>JIMMIND AI</b><small data-i18n="q_role">Service principle</small></span></div></article>
-      <article class="quote-card reveal"><span class="quote-mark">“</span><p data-i18n="q2">Human assistance stays at the center, while the AI assistant handles quick questions about the listed voter services and fees.</p><div class="quote-person"><span class="avatar">AI</span><span><b>JIMMIND AI</b><small data-i18n="q_role2">Product principle</small></span></div></article>
+      <article class="quote-card reveal"><span class="quote-mark">“</span><p data-i18n="q2">Human assistance stays at the center, while the AI assistant handles quick questions about our listed services and fees.</p><div class="quote-person"><span class="avatar">AI</span><span><b>JIMMIND AI</b><small data-i18n="q_role2">Product principle</small></span></div></article>
     </div>
   </div>
 </section>

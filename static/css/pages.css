@@ -216,7 +216,7 @@
 .empty-state p{color:var(--muted);font-size:14px;line-height:1.7;margin:0 0 24px}
 .empty-state .hero-cta{justify-content:center}
 
-/* --- Request-type cards (on the single Voter Service detail page) ---------*/
+/* --- Request-type cards (on any service detail page) ----------------------*/
 .request-type-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
 .request-type-card{padding:28px;border:1px solid var(--line);border-radius:20px;background:#fff;transition:.3s;position:relative}
 .request-type-card:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:#cbd8ee}
@@ -225,3 +225,11 @@
 .request-type-card p{font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 16px}
 .request-type-fee{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:14px}
 .request-type-fee small{font-size:11px;font-weight:600;color:#8792a5;margin-left:4px}
+
+/* --- Fees page: grouped by service ----------------------------------------*/
+.fee-groups{display:grid;gap:26px;margin-top:36px;max-width:700px;margin-left:auto;margin-right:auto}
+.fee-group-title{display:flex;align-items:center;gap:10px;font-size:18px;letter-spacing:-.02em;color:var(--navy);margin:0 0 14px}
+.fee-group-title span{font-size:20px}
+
+.payment-summary-service{font-size:11px;font-weight:800;letter-spacing:.04em;color:#7a869c;text-transform:uppercase;margin:18px 0 4px}
+.payment-summary-service:first-child{margin-top:0}

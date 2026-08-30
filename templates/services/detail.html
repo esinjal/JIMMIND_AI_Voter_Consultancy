@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ service.title }} | JIMMIND AI Voter Services{% endblock %}
+{% block title %}{{ service.title }} | JIMMIND AI{% endblock %}
 {% block meta_description %}{{ service.short }}{% endblock %}
 {% block content %}
 
@@ -7,11 +7,12 @@
   <div class="container">
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="{{ url_for('home') }}">Home</a> <span>/</span>
+      <a href="{{ url_for('services_list') }}">Services</a> <span>/</span>
       <span>{{ service.title }}</span>
     </nav>
     <div class="detail-hero-grid">
       <div>
-        <span class="eyebrow">THE ONE SERVICE WE OFFER</span>
+        <span class="eyebrow">SERVICE {{ service.no }}</span>
         <h1><span class="detail-icon">{{ service.icon }}</span>{{ service.title }}</h1>
         <p class="detail-lead">{{ service.summary }}</p>
         <div class="hero-cta">
@@ -23,7 +24,7 @@
         <span class="detail-fee-label">Consultation fee</span>
         <strong class="detail-fee-amount">{{ service.fee_range }}</strong>
         <span class="detail-fee-unit">depending on request type</span>
-        <p class="fee-note-inline">JIMMIND AI does not issue voter cards and cannot guarantee approval or processing time. Any separate government fee, if applicable, is not included.</p>
+        <p class="fee-note-inline">{{ service.fee_disclaimer }}</p>
       </div>
     </div>
   </div>
@@ -34,7 +35,7 @@
     <div class="section-heading reveal">
       <span class="eyebrow">CHOOSE A REQUEST TYPE</span>
       <h2>What do you need help with?</h2>
-      <p>Voter Service covers three request types under one consultation flow. Pick the one that matches your need.</p>
+      <p>{{ service.request_types_intro }}</p>
     </div>
     <div class="request-type-grid">
       {% for rt in service.request_types %}
@@ -63,7 +64,7 @@
         {% endfor %}
       </ul>
 
-      <h2 class="detail-h2">Documents to keep ready</h2>
+      <h2 class="detail-h2">Good to have ready</h2>
       <ul class="detail-list">
         {% for doc in service.documents %}
         <li>{{ doc }}</li>
@@ -73,12 +74,21 @@
 
     <aside class="detail-aside">
       <div class="mini-card">
-        <h3>More about the process</h3>
+        <h3>Other services</h3>
+        {% for slug, s in nav_services.items() if slug != service.slug %}
+        <a class="mini-card-link" href="{{ url_for('service_detail', slug=slug) }}">
+          <span>{{ s.icon }}</span>
+          <span><b>{{ s.title }}</b><small>{{ s.fee_range }}</small></span>
+        </a>
+        {% endfor %}
+      </div>
+      <div class="mini-card">
+        <h3>More about JIMMIND AI</h3>
         <a class="mini-card-link" href="{{ url_for('process_page') }}">
           <span>🧭</span><span><b>How it works</b><small>4-step flow</small></span>
         </a>
         <a class="mini-card-link" href="{{ url_for('fees_page') }}">
-          <span>💳</span><span><b>Fee breakdown</b><small>All request types</small></span>
+          <span>💳</span><span><b>Fee breakdown</b><small>All services</small></span>
         </a>
         <a class="mini-card-link" href="{{ url_for('tools_list') }}">
           <span>🛠️</span><span><b>Free tools</b><small>Coming soon</small></span>
@@ -93,7 +103,7 @@
     <div class="contact-copy reveal">
       <span class="eyebrow" data-i18n="contact_eyebrow">START A REQUEST</span>
       <h2 data-i18n="contact_title">Tell us what you need.</h2>
-      <p>Share the basics below and pick the request type — new voter card, correction, or mobile update.</p>
+      <p>Share the basics below and pick the request type that matches your need — we'll take it from there.</p>
     </div>
     {% include "partials/inquiry_form.html" with context %}
   </div>

@@ -131,12 +131,11 @@ def save_inquiry(data):
 # (and, for a tool with custom interactive behaviour, a matching block in
 # templates/tools/detail.html).
 #
-# Phase 1: everything voters need (new card / correction / mobile update) is
-# offered as ONE service — "Voter Service" — with three selectable request
-# types, rather than three separate service pages. request_types["form_value"]
-# is the exact string stored in MongoDB's "service" field, kept identical to
-# the original single-page build so existing inquiry/client records and the
-# admin filter dropdown stay valid.
+# Each service can offer multiple "request_types" — selectable sub-options
+# shown as cards on that service's detail page and grouped in the inquiry
+# form's dropdown. request_types["form_value"] is the exact string stored in
+# MongoDB's "service" field; keep these stable once live, since existing
+# inquiry/client records and the admin filter dropdown depend on them.
 # ---------------------------------------------------------------------------
 SERVICES = {
     "voter-service": {
@@ -167,6 +166,11 @@ SERVICES = {
             "A recent passport-size photograph, where applicable",
             "A valid mobile number for updates",
         ],
+        "request_types_intro": "Voter Service covers three request types under one consultation flow. Pick the one that matches your need.",
+        "fee_disclaimer": (
+            "JIMMIND AI does not issue voter cards and cannot guarantee approval or "
+            "processing time. Any separate government fee, if applicable, is not included."
+        ),
         "request_types": [
             {
                 "key": "new-voter-card",
@@ -197,6 +201,134 @@ SERVICES = {
             },
         ],
     },
+    "digital-media-influence": {
+        "slug": "digital-media-influence",
+        "icon": "📣",
+        "no": "02",
+        "title": "Digital Media Influence",
+        "short": "Banners, articles, reels and promotional images to help your product reach an audience.",
+        "fee_range": "₹399 – ₹1,499",
+        "summary": (
+            "JIMMIND AI helps businesses and individuals build a digital presence for "
+            "their product — from designed banners and promotional images to written "
+            "articles and short-form reel content — so you have ready-to-use material "
+            "for your marketing and social channels."
+        ),
+        "who_for": "Businesses, creators or individuals who need design or content support to promote a product, service or brand online.",
+        "assistance": [
+            "Understanding your product and the audience you want to reach",
+            "Recommending the content types (banner, article, reel, image) that fit your goal",
+            "Producing the requested creative or written material",
+            "Sharing drafts for your review before final delivery",
+            "Delivering final files in formats ready to publish",
+        ],
+        "documents": [
+            "Basic product/brand details (name, description, logo if available)",
+            "Reference images or brand colours, if you have a preference",
+            "Any existing marketing material you'd like matched in style",
+            "A valid mobile number/email for sharing drafts",
+        ],
+        "request_types_intro": "Digital Media Influence covers four request types. Pick the one that matches what you need produced.",
+        "fee_disclaimer": (
+            "Fees shown are starting prices per deliverable and can vary with scope, "
+            "revisions and turnaround time — your consultant will confirm the exact "
+            "quote before work begins."
+        ),
+        "request_types": [
+            {
+                "key": "banner-design",
+                "form_value": "Banner design",
+                "title": "Banner Design",
+                "icon": "🖼️",
+                "fee": "₹499",
+                "fee_unit": "per banner, starting price",
+                "desc": "Custom-designed banners for your website, storefront or social media.",
+            },
+            {
+                "key": "promo-images",
+                "form_value": "Promotional images",
+                "title": "Promotional Images",
+                "icon": "🎨",
+                "fee": "₹399",
+                "fee_unit": "per image set, starting price",
+                "desc": "Product/promotional images designed for social media and ads.",
+            },
+            {
+                "key": "article-writing",
+                "form_value": "Article and content writing",
+                "title": "Article & Content Writing",
+                "icon": "📝",
+                "fee": "₹599",
+                "fee_unit": "per article, starting price",
+                "desc": "Written articles and marketing copy to promote your product or brand.",
+            },
+            {
+                "key": "reels-promotion",
+                "form_value": "Reels and short video promotion",
+                "title": "Reels & Short Video Promotion",
+                "icon": "🎬",
+                "fee": "₹1,499",
+                "fee_unit": "per reel, starting price",
+                "desc": "Short-form video/reel content edited for Instagram, YouTube Shorts and similar platforms.",
+            },
+        ],
+    },
+    "website-designer": {
+        "slug": "website-designer",
+        "icon": "💻",
+        "no": "03",
+        "title": "Website Designer",
+        "short": "End-to-end website design, development and deployment for your product, plus ongoing maintenance.",
+        "fee_range": "₹499 – ₹4,999",
+        "summary": (
+            "JIMMIND AI designs and builds a website for your product from scratch — "
+            "covering design, development and deployment — at a nominal one-time "
+            "charge, with an optional low-cost monthly plan to keep it maintained and "
+            "up to date afterward."
+        ),
+        "who_for": "Businesses or individuals who need a website built for their product/brand and want it deployed and kept running without managing it themselves.",
+        "assistance": [
+            "Understanding your product and what the website needs to do",
+            "Designing the website layout and structure",
+            "Building the website end-to-end",
+            "Deploying the website so it's live and reachable",
+            "Handing over access details and a short walkthrough",
+            "Ongoing maintenance and updates, if you choose the maintenance plan",
+        ],
+        "documents": [
+            "Business/product details and any existing branding (logo, colours)",
+            "Content for the website (text, images) or a request to have it drafted",
+            "Domain name, if you already own one",
+            "A valid mobile number/email for coordination",
+        ],
+        "request_types_intro": "Website Designer covers two request types — a one-time build, and ongoing maintenance for a site already built with us.",
+        "fee_disclaimer": (
+            "Development fees are starting prices and vary with the number of pages "
+            "and features requested — your consultant will confirm the exact quote "
+            "before work begins. Domain and hosting charges, if applicable, are separate "
+            "from JIMMIND AI's service fee."
+        ),
+        "request_types": [
+            {
+                "key": "website-development",
+                "form_value": "Website development and deployment",
+                "title": "Website Development & Deployment",
+                "icon": "🚀",
+                "fee": "₹4,999",
+                "fee_unit": "onwards, one-time, scope-based",
+                "desc": "End-to-end design, development and deployment of a new website from scratch.",
+            },
+            {
+                "key": "website-maintenance",
+                "form_value": "Website maintenance",
+                "title": "Website Maintenance",
+                "icon": "🛠",
+                "fee": "₹499",
+                "fee_unit": "per month",
+                "desc": "Ongoing updates, fixes and upkeep for a website already built with JIMMIND AI.",
+            },
+        ],
+    },
 }
 
 # Flat lookup of every request type across every service, keyed by "key" —
@@ -211,7 +343,6 @@ REQUEST_TYPES = {
 # /tools page already handle the empty state gracefully. Add entries here
 # (matching the same shape used previously) once a tool is ready to ship.
 TOOLS = {}
-
 
 
 @app.context_processor
@@ -296,7 +427,6 @@ def payment_page():
     type_key = request.args.get("type", "").strip()
     selected = REQUEST_TYPES.get(type_key)
     return render_template("payment.html", page="payment", services=SERVICES, request_types=REQUEST_TYPES, selected=selected)
-
 
 
 # ---------------------------------------------------------------------------

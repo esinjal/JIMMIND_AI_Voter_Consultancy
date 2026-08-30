@@ -5,8 +5,12 @@
   <label><span data-i18n="label_service">Request type</span>
     <select name="service" id="serviceSelect" required>
       <option value="" data-i18n="select_service" {{ 'selected' if not preselect }}>Select a request type</option>
-      {% for key, rt in nav_request_types.items() %}
-      <option value="{{ rt.form_value }}" {{ 'selected' if preselect and preselect.key == key }}>{{ rt.title }} ({{ rt.fee }})</option>
+      {% for slug, s in nav_services.items() %}
+      <optgroup label="{{ s.title }}">
+        {% for rt in s.request_types %}
+        <option value="{{ rt.form_value }}" {{ 'selected' if preselect and preselect.key == rt.key }}>{{ rt.title }} ({{ rt.fee }})</option>
+        {% endfor %}
+      </optgroup>
       {% endfor %}
     </select>
   </label>

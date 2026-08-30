@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Payment | JIMMIND AI{% endblock %}
-{% block meta_description %}Consultation fee payment for JIMMIND AI voter services.{% endblock %}
+{% block meta_description %}Consultation fee payment for JIMMIND AI services — voter services, digital media influence and website design.{% endblock %}
 {% block content %}
 
 <section class="page-hero">
@@ -19,8 +19,11 @@
         {% if selected %}
         <div class="fee-row"><span>{{ selected.title }}</span><strong>{{ selected.fee }}</strong></div>
         {% else %}
-        {% for key, rt in request_types.items() %}
+        {% for slug, s in services.items() %}
+        <p class="payment-summary-service">{{ s.icon }} {{ s.title }}</p>
+        {% for rt in s.request_types %}
         <div class="fee-row"><span>{{ rt.title }}</span><strong>{{ rt.fee }}</strong></div>
+        {% endfor %}
         {% endfor %}
         {% endif %}
         <p class="tool-disclaimer" data-i18n="payment_disclaimer">These are JIMMIND AI consultation fees only. Any separate government fee, if applicable, is not included.</p>

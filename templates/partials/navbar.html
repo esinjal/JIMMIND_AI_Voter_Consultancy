@@ -1,15 +1,30 @@
 <header class="site-header" id="top">
   <div class="container nav-wrap">
     <a class="brand" href="{{ url_for('home') }}" aria-label="JIMMIND AI home">
-      <span class="brand-mark">JM</span>
+      <span class="brand-mark"><img src="{{ url_for('static', filename='images/jimmind-logo.jpg') }}" alt="JIMMIND AI logo"></span>
       <span>
-        <strong>JIMMIND</strong><small>AI • CONSULTANCY</small>
+        <strong>JIMMIND</strong><small>HARNESSING • AI</small>
       </span>
     </a>
 
     <nav class="desktop-nav" aria-label="Main navigation">
       <a href="{{ url_for('home') }}" class="{{ 'nav-active' if page == 'home' else '' }}" data-i18n="nav_home">Home</a>
-      <a href="{{ url_for('services_list') }}" class="{{ 'nav-active' if page == 'services' else '' }}" data-i18n="nav_services">Services</a>
+
+      <div class="nav-dropdown">
+        <button type="button" class="nav-drop-toggle {{ 'nav-active' if page == 'services' else '' }}" aria-haspopup="true" aria-expanded="false" data-i18n="nav_services">
+          Services <span class="care">▾</span>
+        </button>
+        <div class="nav-drop-menu" role="menu">
+          <a href="{{ url_for('services_list') }}" class="nav-drop-all" data-i18n="nav_services_all">All services</a>
+          {% for slug, s in nav_services.items() %}
+          <a href="{{ url_for('service_detail', slug=slug) }}" role="menuitem">
+            <span class="drop-icon">{{ s.icon }}</span>
+            <span><b>{{ s.title }}</b><small>{{ s.fee_range }}</small></span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
       <a href="{{ url_for('tools_list') }}" class="{{ 'nav-active' if page == 'tools' else '' }}" data-i18n="nav_tools">Tools</a>
       <a href="{{ url_for('contact_page') }}" class="{{ 'nav-active' if page == 'contact' else '' }}" data-i18n="nav_contact">Contact</a>
     </nav>
@@ -26,7 +41,13 @@
 
   <div class="mobile-nav" id="mobileNav">
     <a href="{{ url_for('home') }}" data-i18n="nav_home">Home</a>
-    <a href="{{ url_for('services_list') }}" data-i18n="nav_services">Services</a>
+    <div class="mobile-nav-group">
+      <span class="mobile-nav-label" data-i18n="nav_services">Services</span>
+      <a href="{{ url_for('services_list') }}" data-i18n="nav_services_all">All services</a>
+      {% for slug, s in nav_services.items() %}
+      <a href="{{ url_for('service_detail', slug=slug) }}">{{ s.title }}</a>
+      {% endfor %}
+    </div>
     <a href="{{ url_for('tools_list') }}" data-i18n="nav_tools">Tools</a>
     <a href="{{ url_for('contact_page') }}" data-i18n="nav_contact">Contact</a>
     <a href="{{ url_for('payment_page') }}" data-i18n="nav_payment">Payment</a>

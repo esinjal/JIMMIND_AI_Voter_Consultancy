@@ -1,20 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Consultation Fees | JIMMIND AI{% endblock %}
-{% block meta_description %}Transparent JIMMIND AI consultation fees for new voter card, correction and mobile-number update requests.{% endblock %}
+{% block meta_description %}Transparent JIMMIND AI consultation fees across voter services, digital media influence and website design.{% endblock %}
 {% block content %}
 
 <section class="section fees-section" id="fees" style="padding-top:160px">
-  <div class="container fee-layout">
+  <div class="container">
     <div class="section-heading reveal">
       <span class="eyebrow" data-i18n="fees_eyebrow">CONSULTATION FEES</span>
       <h2 data-i18n="fees_title">Transparent from the first click.</h2>
-      <p data-i18n="fees_lead">These are JIMMIND AI assistance/consultation fees for Voter Service, broken down by request type. Any separate government fee, if applicable, is not included unless explicitly stated.</p>
+      <p data-i18n="fees_lead">These are JIMMIND AI assistance/consultation fees, broken down by service and request type. Any separate third-party or government fee, if applicable, is not included unless explicitly stated.</p>
     </div>
-    <div class="fee-table reveal">
-      {% for key, rt in request_types.items() %}
-      <div class="fee-row"><span>{{ rt.title }}</span><strong>{{ rt.fee }}</strong></div>
+
+    <div class="fee-groups">
+      {% for slug, s in services.items() %}
+      <div class="fee-group reveal">
+        <h3 class="fee-group-title"><span>{{ s.icon }}</span>{{ s.title }}</h3>
+        <div class="fee-table">
+          {% for rt in s.request_types %}
+          <div class="fee-row"><span>{{ rt.title }}</span><strong>{{ rt.fee }}</strong></div>
+          {% endfor %}
+          <div class="fee-note"><span>i</span><p>{{ s.fee_disclaimer }}</p></div>
+        </div>
+      </div>
       {% endfor %}
-      <div class="fee-note"><span>i</span><p data-i18n="fee_note">JIMMIND AI does not issue voter cards and cannot guarantee approval or processing time.</p></div>
     </div>
   </div>
 </section>
