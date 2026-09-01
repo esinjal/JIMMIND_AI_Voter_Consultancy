@@ -13,7 +13,7 @@ const I18N = {
     platform_eyebrow:"HOW JIMMIND AI WORKS",platform_title:"One platform, three services.",
     platform_lead:"JIMMIND AI brings together voter-service consultancy, digital media content and website design under one platform, with free self-serve tools launching soon.",
     feature_services_title:"Consultancy services",feature_services_text:"Human-assisted help across voter services, digital media content and website design — with transparent consultation fees.",feature_services_link:"Browse services →",
-    feature_tools_title:"Free self-serve tools",feature_tools_text:"Quick, no-signup tools — like a Voter ID format checker and a consultation fee estimator — are launching soon, so you can prepare before you talk to a consultant.",feature_tools_link:"See what's coming →",
+    feature_tools_title:"Free self-serve tools",feature_tools_text:"Free, no-signup tools like our Photo Resize & Print Sheet maker — with more on the way — so you can prepare before you talk to a consultant.",feature_tools_link:"Try a free tool →",
     feature_ai_title:"AI assistant, tightly scoped",feature_ai_text:"Our chatbot answers strictly from our published services and fees — no guesses, no unrelated topics.",feature_ai_link:"Ask a question →",
 
     services_eyebrow:"WHAT WE HELP WITH",services_title:"Three services. One consultancy.",
@@ -64,7 +64,7 @@ const I18N = {
     footer_text:"Private consultancy offering voter services, digital media support and website design. Not a government office.",footer_chat:"Chat with JIMMIND AI",
     footer_note:"Consultation fees are separate from any applicable government or third-party charges. JIMMIND AI is a private consultancy and is not affiliated with any government body.",
     footer_rights:"© 2026 JIMMIND AI. All rights reserved.",
-    footer_services_label:"SERVICES",footer_tools_label:"TOOLS",footer_company_label:"COMPANY",
+    footer_services_label:"SERVICES",footer_tools_label:"TOOLS",footer_company_label:"COMPANY",footer_contact_label:"CONTACT",
     chat_scope:"Voter services & consultation fees only",chat_welcome:"Hi! Ask me about JIMMIND AI’s voter services, eligibility guidance, process or consultation fees.",chat_placeholder:"Ask about a voter service…"
   },
   hi: {
@@ -81,7 +81,7 @@ const I18N = {
     platform_eyebrow:"JIMMIND AI कैसे काम करता है",platform_title:"एक प्लेटफ़ॉर्म, तीन सेवाएँ।",
     platform_lead:"JIMMIND AI मतदाता-सेवा कंसल्टेंसी, डिजिटल मीडिया कंटेंट और वेबसाइट डिज़ाइन को एक ही प्लेटफ़ॉर्म पर लाता है, साथ ही मुफ़्त सेल्फ़-सर्व टूल्स जल्द लॉन्च हो रहे हैं।",
     feature_services_title:"कंसल्टेंसी सेवाएँ",feature_services_text:"मतदाता सेवाओं, डिजिटल मीडिया कंटेंट और वेबसाइट डिज़ाइन में मानव-सहायित मदद, स्पष्ट कंसल्टेशन शुल्क के साथ।",feature_services_link:"सेवाएँ देखें →",
-    feature_tools_title:"मुफ़्त सेल्फ़-सर्व टूल्स",feature_tools_text:"वोटर ID फॉर्मैट चेकर और फीस एस्टिमेटर जैसे त्वरित, बिना साइन-अप वाले टूल्स जल्द आ रहे हैं, ताकि आप कंसल्टेंट से बात करने से पहले तैयार रह सकें।",feature_tools_link:"जल्द आने वाला देखें →",
+    feature_tools_title:"मुफ़्त सेल्फ़-सर्व टूल्स",feature_tools_text:"हमारे Photo Resize & Print Sheet टूल जैसे मुफ़्त, बिना साइन-अप वाले टूल्स — और जल्द आ रहे हैं — ताकि आप कंसल्टेंट से बात करने से पहले तैयार रह सकें।",feature_tools_link:"मुफ़्त टूल आज़माएँ →",
     feature_ai_title:"AI सहायक, सीमित दायरे में",feature_ai_text:"हमारा चैटबॉट केवल हमारी प्रकाशित सेवाओं और शुल्क के आधार पर जवाब देता है — कोई अनुमान नहीं, कोई असंबंधित विषय नहीं।",feature_ai_link:"सवाल पूछें →",
 
     services_eyebrow:"हम किसमें सहायता करते हैं",services_title:"तीन सेवाएँ। एक कंसल्टेंसी।",
@@ -131,7 +131,7 @@ const I18N = {
     footer_text:"मतदाता सेवाओं, डिजिटल मीडिया सहायता और वेबसाइट डिज़ाइन देने वाली निजी कंसल्टेंसी। यह सरकारी कार्यालय नहीं है।",footer_chat:"JIMMIND AI से चैट करें",
     footer_note:"कंसल्टेशन शुल्क किसी लागू सरकारी या अन्य पक्ष के शुल्क से अलग है। JIMMIND AI एक निजी कंसल्टेंसी है और किसी भी सरकारी निकाय से संबद्ध नहीं है।",
     footer_rights:"© 2026 JIMMIND AI. सर्वाधिकार सुरक्षित।",
-    footer_services_label:"सेवाएँ",footer_tools_label:"टूल्स",footer_company_label:"कंपनी",
+    footer_services_label:"सेवाएँ",footer_tools_label:"टूल्स",footer_company_label:"कंपनी",footer_contact_label:"संपर्क",
     chat_scope:"केवल मतदाता सेवाएँ और कंसल्टेशन शुल्क",chat_welcome:"नमस्ते! JIMMIND AI की मतदाता सेवाओं, पात्रता मार्गदर्शन, प्रक्रिया या कंसल्टेशन शुल्क के बारे में पूछें।",chat_placeholder:"मतदाता सेवा के बारे में पूछें…"
   }
 };

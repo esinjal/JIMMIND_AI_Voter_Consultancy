@@ -2,7 +2,7 @@
   <div class="container footer-grid">
     <div>
       <a class="brand footer-brand" href="{{ url_for('home') }}">
-        <span class="brand-mark"><img src="{{ url_for('static', filename='images/jimmind-logo.jpg') }}" alt="JIMMIND AI logo"></span>
+        <span class="brand-mark-footer"><img src="{{ url_for('static', filename='images/jimmind-logo.jpg') }}" alt="JIMMIND AI logo"></span>
         <span><strong>JIMMIND</strong><small>AI • CONSULTANCY</small></span>
       </a>
       <p data-i18n="footer_text">Private consultancy offering voter services, digital media support and website design. Not a government office.</p>
@@ -33,6 +33,14 @@
       <a href="{{ url_for('fees_page') }}" data-i18n="nav_fees">Fees</a>
       <a href="{{ url_for('contact_page') }}" data-i18n="nav_contact">Service inquiry</a>
       <button class="footer-chat" type="button" data-chat-open data-i18n="footer_chat">Chat with JIMMIND AI</button>
+    </div>
+
+    <div>
+      <span class="footer-label" data-i18n="footer_contact_label">CONTACT</span>
+      <div class="footer-contact">
+        <a href="mailto:jimmind76@gmail.com"><span>✉</span>jimmind76@gmail.com</a>
+        <a href="https://wa.me/918527519417" target="_blank" rel="noopener"><span>💬</span>+91 85275 19417</a>
+      </div>
     </div>
   </div>
 

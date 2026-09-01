@@ -49,6 +49,15 @@
         <p class="tool-disclaimer">Estimate only. Any separate government fee, if applicable, is not included.</p>
         <a class="btn btn-primary" href="{{ url_for('contact_page') }}" id="feeEstimatorCta">Start a service inquiry →</a>
 
+      {% elif tool.kind == 'external_link' %}
+        <ul class="detail-list">
+          {% for item in tool.features %}
+          <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+        <a class="btn btn-primary" href="{{ tool.external_url }}" target="_blank" rel="noopener">Open {{ tool.title }} <span>↗</span></a>
+        <p class="tool-disclaimer">This tool runs on a separate site ({{ tool.external_host }}), built and maintained by JIMMIND AI. It opens in a new tab. It's free to use and doesn't require an account.</p>
+
       {% else %}
         <div class="coming-soon-block">
           <span class="badge badge-soon">Coming soon</span>
@@ -59,14 +68,20 @@
 
     </div>
 
+    {% set other_tools = [] %}
+    {% for slug, t in nav_tools.items() %}
+      {% if slug != tool.slug %}{% set _ = other_tools.append((slug, t)) %}{% endif %}
+    {% endfor %}
+    {% if other_tools %}
     <aside class="mini-card" style="max-width:520px;margin:32px auto 0">
       <h3>Other tools</h3>
-      {% for slug, t in nav_tools.items() if slug != tool.slug %}
+      {% for slug, t in other_tools %}
       <a class="mini-card-link" href="{{ url_for('tool_detail', slug=slug) }}">
         <span>{{ t.icon }}</span><span><b>{{ t.title }}</b><small>{{ 'Coming soon' if t.status == 'coming-soon' else 'Free tool' }}</small></span>
       </a>
       {% endfor %}
     </aside>
+    {% endif %}
   </div>
 </section>
 

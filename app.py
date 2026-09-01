@@ -339,10 +339,37 @@ REQUEST_TYPES = {
     rt["key"]: rt for s in SERVICES.values() for rt in s["request_types"]
 }
 
-# No tools are available yet. Leave this empty; the "Tools" nav link and
-# /tools page already handle the empty state gracefully. Add entries here
-# (matching the same shape used previously) once a tool is ready to ship.
-TOOLS = {}
+# One free tool is live: an external, JIMMIND-AI-built photo resize / print
+# sheet maker. It's not embedded on this site (it's a separate deployment);
+# its detail page links out to it. Add further tools here the same way —
+# either "kind": "external_link" pointing elsewhere, or a kind handled
+# in templates/tools/detail.html for an embedded interactive tool.
+TOOLS = {
+    "photo-resize": {
+        "slug": "photo-resize",
+        "icon": "🖼️",
+        "title": "Photo Resize & Print Sheet",
+        "short": "Resize a photo to passport/stamp size and tile copies onto a print-ready A4 sheet — free, no account needed.",
+        "status": "live",
+        "kind": "external_link",
+        "external_url": "https://photo-print-sheet.vercel.app/",
+        "external_host": "photo-print-sheet.vercel.app",
+        "summary": (
+            "Upload a photo and this tool resizes it to a standard size — passport "
+            "(35 × 45 mm), stamp size, standard photo, 4×6, 5×7, or a custom size — "
+            "then tiles as many copies as fit onto a printable sheet (A4, A3, 4×6, "
+            "or a custom page size). Download a print-ready PDF at true scale, or a "
+            "JPEG for sharing. It's free, works in the browser, and needs no sign-up."
+        ),
+        "features": [
+            "Standard size presets: passport, stamp size, standard photo, 4×6, 5×7, or enter a custom size",
+            "Choose the page to print on — A4, A3, 4×6, or a custom page size",
+            "Automatically fits the maximum number of copies on the page, or set your own count",
+            "Adjustable margins and gaps between photos, with optional cutting guide lines",
+            "Download as a true-scale PDF for printing, or as a JPEG for sharing",
+        ],
+    },
+}
 
 
 @app.context_processor
@@ -389,6 +416,11 @@ def service_detail(slug):
 
 @app.get("/tools")
 def tools_list():
+    # With a single tool, skip the listing page and go straight to it.
+    # If a second tool is ever added, this automatically shows the list.
+    if len(TOOLS) == 1:
+        only_slug = next(iter(TOOLS))
+        return redirect(url_for("tool_detail", slug=only_slug))
     return render_template("tools/list.html", page="tools", tools=TOOLS)
 
 
