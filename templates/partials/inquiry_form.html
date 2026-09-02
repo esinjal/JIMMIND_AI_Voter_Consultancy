@@ -8,7 +8,7 @@
       {% for slug, s in nav_services.items() %}
       <optgroup label="{{ s.title }}">
         {% for rt in s.request_types %}
-        <option value="{{ rt.form_value }}" {{ 'selected' if preselect and preselect.key == rt.key }}>{{ rt.title }} ({{ rt.fee }})</option>
+        <option value="{{ rt.form_value }}" {{ 'selected' if preselect and preselect.key == rt.key }}>{{ rt.title }}</option>
         {% endfor %}
       </optgroup>
       {% endfor %}

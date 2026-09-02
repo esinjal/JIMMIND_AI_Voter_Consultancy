@@ -20,12 +20,12 @@
           <a class="btn btn-small btn-ghost" href="{{ url_for('payment_page') }}">See payment</a>
         </div>
       </div>
-      <div class="detail-fee-card">
-        <span class="detail-fee-label">Consultation fee</span>
-        <strong class="detail-fee-amount">{{ service.fee_range }}</strong>
-        <span class="detail-fee-unit">depending on request type</span>
+      <a class="detail-fee-card" href="{{ url_for('fees_page') }}">
+        <span class="detail-fee-label">Pricing</span>
+        <strong class="detail-fee-amount">View Fees</strong>
+        <span class="detail-fee-unit">See exact pricing for every request type →</span>
         <p class="fee-note-inline">{{ service.fee_disclaimer }}</p>
-      </div>
+      </a>
     </div>
   </div>
 </section>
@@ -43,7 +43,6 @@
         <div class="request-type-icon">{{ rt.icon }}</div>
         <h3>{{ rt.title }}</h3>
         <p>{{ rt.desc }}</p>
-        <div class="request-type-fee">{{ rt.fee }} <small>{{ rt.fee_unit }}</small></div>
         <a class="card-link" href="{{ url_for('contact_page') }}?type={{ rt.key }}">Request this →</a>
       </article>
       {% endfor %}
@@ -78,7 +77,7 @@
         {% for slug, s in nav_services.items() if slug != service.slug %}
         <a class="mini-card-link" href="{{ url_for('service_detail', slug=slug) }}">
           <span>{{ s.icon }}</span>
-          <span><b>{{ s.title }}</b><small>{{ s.fee_range }}</small></span>
+          <span><b>{{ s.title }}</b></span>
         </a>
         {% endfor %}
       </div>
@@ -91,7 +90,7 @@
           <span>💳</span><span><b>Fee breakdown</b><small>All services</small></span>
         </a>
         <a class="mini-card-link" href="{{ url_for('tools_list') }}">
-          <span>🛠️</span><span><b>Free tools</b><small>Coming soon</small></span>
+          <span>🛠️</span><span><b>Free tools</b><small>Try them free</small></span>
         </a>
       </div>
     </aside>

@@ -19,7 +19,7 @@
           {% for slug, s in nav_services.items() %}
           <a href="{{ url_for('service_detail', slug=slug) }}" role="menuitem">
             <span class="drop-icon">{{ s.icon }}</span>
-            <span><b>{{ s.title }}</b><small>{{ s.fee_range }}</small></span>
+            <span><b>{{ s.title }}</b></span>
           </a>
           {% endfor %}
         </div>

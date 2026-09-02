@@ -19,7 +19,10 @@
         <div class="service-no">{{ s.no }}</div><div class="service-icon">{{ s.icon }}</div>
         <h3>{{ s.title }}</h3>
         <p>{{ s.short }}</p>
-        <div class="service-fee-tag">{{ s.fee_range }} <small>depending on request type</small></div>
+        <div class="service-fee-tag">
+          <!-- {{ s.fee_range }}  -->
+          <small>Price depends on request type</small>
+        </div>
         <a href="{{ url_for('service_detail', slug=slug) }}" class="card-link">View details →</a>
       </article>
       {% endfor %}
