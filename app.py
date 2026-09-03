@@ -661,7 +661,7 @@ Answer strictly from the knowledge document. If the requested information is out
         app.logger.exception("OpenAI chatbot error")
         return jsonify({
             "ok": False,
-            "message": "I'm unable to answer right now. For any support, please reach out on WhatsApp.",
+            "message": "For any support, please reach out on WhatsApp No +91 8527519417. Or click on the link below.",
             "support_link": "https://wa.me/message/WL77BUDW3DPXP1"
         }), 502
 
