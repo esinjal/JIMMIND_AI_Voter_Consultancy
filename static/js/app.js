@@ -39,7 +39,7 @@ const I18N = {
 
     contact_eyebrow:"START A REQUEST",contact_title:"Tell us what you need.",contact_text:"Share the basics below. A JIMMIND AI consultant can use your inquiry to understand the requested service.",
     contact_direct_title:"Prefer to reach us directly?",
-    cp1:"Bilingual assistance",cp2:"Voter services, digital media & websites",cp3:"Clear consultation fees",label_name:"Name",label_mobile:"Mobile No.",label_city:"City",label_service:"Service",
+    cp1:"Voter Service",cp2:"Digital Media",cp3:"websites",label_name:"Name",label_mobile:"Mobile No.",label_city:"City",label_service:"Service",
     select_service:"Select a service",submit_btn:"Submit service inquiry",form_disclaimer:"By submitting, you are requesting a consultation. Do not enter sensitive identity documents in this form.",
 
     tools_eyebrow:"FREE, NO SIGN-UP",tools_title:"Tools that help you before you apply.",
@@ -267,27 +267,42 @@ if (overlay) {
     $("#chatMessages").scrollTop = $("#chatMessages").scrollHeight;
     return el;
   }
+  function addSupportLink(url, label) {
+    const el = document.createElement("div");
+    el.className = "chat-bubble bot chat-support";
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = label;
+    el.appendChild(a);
+    $("#chatMessages").appendChild(el);
+    $("#chatMessages").scrollTop = $("#chatMessages").scrollHeight;
+  }
 
   $("#chatForm")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const input = $("#chatInput");
-    const message = input.value.trim();
-    if (!message) return;
-    addBubble(message, "user");
-    input.value = "";
-    const typing = addBubble(lang === "hi" ? "सोच रहा हूँ…" : "Thinking…", "bot typing");
-    try {
-      const res = await fetch("/api/chat", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({message})
-      });
-      const data = await res.json();
-      typing.remove();
-      addBubble(data.ok ? data.answer : (data.message || "Unable to answer right now."), "bot");
-    } catch {
-      typing.remove();
-      addBubble(lang === "hi" ? "अभी चैट उपलब्ध नहीं है। कृपया सेवा अनुरोध भेजें।" : "Chat is unavailable right now. Please submit a service inquiry.", "bot");
+  e.preventDefault();
+  const input = $("#chatInput");
+  const message = input.value.trim();
+  if (!message) return;
+  addBubble(message, "user");
+  input.value = "";
+  const typing = addBubble(lang === "hi" ? "सोच रहा हूँ…" : "Thinking…", "bot typing");
+  try {
+    const res = await fetch("/api/chat", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message})
+    });
+    const data = await res.json();
+    typing.remove();
+    addBubble(data.ok ? data.answer : (data.message || "Unable to answer right now."), "bot");
+    if (!data.ok && data.support_link) {
+      addSupportLink(data.support_link, lang === "hi" ? "WhatsApp पर संपर्क करें" : "Chat on WhatsApp");
     }
+  } catch {
+    typing.remove();
+    addBubble(lang === "hi" ? "अभी चैट उपलब्ध नहीं है। कृपया सेवा अनुरोध भेजें।" : "Chat is unavailable right now. Please submit a service inquiry.", "bot");
+  }
   });
 }
 

@@ -11,6 +11,7 @@
   --green: #2fc98d;
   --shadow: 0 22px 70px rgba(13, 32, 67, .12);
   --radius: 24px;
+  --black: #000;
 }
 
 * {
@@ -200,6 +201,18 @@ select {
   box-shadow: 0 18px 38px rgba(10, 30, 68, .3)
 }
 
+.btn-outline {
+  background: transparent;
+  box-shadow: 2px 2px 3px 3px rgba(10, 35, 82, 0.336);
+  color: var(--black);
+  border: 1px solid var(--black);
+}
+
+.btn-outline:hover {
+  background: linear-gradient(135deg, #173a78, #0b1d43);
+  color: #fff;
+}
+
 .btn-full {
   width: 100%
 }
@@ -261,7 +274,7 @@ select {
 
 .text-link {
   background: none;
-  border: 0;
+  border: 1;
   padding: 0;
   font-weight: 800;
   color: var(--navy);
