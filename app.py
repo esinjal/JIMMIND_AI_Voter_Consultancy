@@ -680,6 +680,13 @@ def not_found(_err):
     return render_template("404.html", page=""), 404
 
 
+
+@app.route("/video-editor")
+def video_editor():
+    return render_template("video_editor.html", page="video-editor")
+
+
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     debug = os.getenv("FLASK_DEBUG", "0") == "1"
