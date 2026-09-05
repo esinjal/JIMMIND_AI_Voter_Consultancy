@@ -163,6 +163,84 @@
   left: 0;
   right: 0;
   bottom: 0;
+  /* Fallback height for browsers without dvh support */
+  height: calc(100vh - 78px);
+  /* Dynamic viewport height accounts for mobile browser toolbars
+     showing/hiding, which is what usually causes the panel to look
+     "too short" on iOS Safari / Chrome Android */
+  height: calc(100dvh - 78px);
+  background: #fff;
+  z-index: 99;
+  padding: 18px 20px 40px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.mobile-nav.open {
+  display: block;
+}
+
+.mobile-nav>a {
+  display: block;
+  padding: 14px 4px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--navy);
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-nav-group {
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-nav-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  color: #8792a5;
+  margin: 8px 0;
+}
+
+.mobile-nav-group a {
+  display: block;
+  padding: 9px 10px;
+  font-size: 14px;
+  color: #33405a;
+  border-radius: 10px;
+}
+
+.mobile-nav-group a:hover {
+  background: #f3f6fc;
+}
+
+@media (max-width: 900px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+}
+
+@media (min-width: 901px) {
+  .mobile-nav {
+    display: none !important;
+  }
+}
+
+/* Prevent the page behind the open mobile nav from also scrolling —
+   if your JS toggle doesn't already do this, add/remove this class on
+   <body> when opening/closing the menu (see note below). */
+body.nav-open {
+  overflow: hidden;
+}
+/* .mobile-nav {
+  display: none;
+  position: fixed;
+  top: 78px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: #fff;
   z-index: 99;
   padding: 18px 20px 40px;
@@ -218,7 +296,7 @@
   .mobile-nav {
     display: none !important;
   }
-}
+} */
 
 /* ---- Inner-page hero (services list, process, fees, tools, 404) -------- */
 .page-hero {
