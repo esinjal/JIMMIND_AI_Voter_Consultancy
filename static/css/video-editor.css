@@ -153,6 +153,7 @@ body {
    VIDEO PREVIEW
 ===================================================== */
 .video-preview-container {
+    position: relative;
     width: 100%;
     background: #111;
     border-radius: 10px;
@@ -645,4 +646,133 @@ body {
     background: #fdecec;
     border: 1px solid #f3b4b4;
     color: #a12626;
+}
+
+
+/* =====================================================
+   OVERLAYS — image + text controls
+===================================================== */
+
+.overlay-section {
+    width: 100%;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 22px;
+    margin-top: 22px;
+}
+
+.overlay-section h2 {
+    margin: 0 0 7px;
+    font-size: 19px;
+}
+
+.overlay-section > p {
+    margin: 0 0 16px;
+    color: #666;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.overlay-group {
+    padding: 14px;
+    margin-bottom: 12px;
+    background: #f8f8f8;
+    border-radius: 10px;
+}
+
+.overlay-group:last-child {
+    margin-bottom: 0;
+}
+
+.overlay-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.overlay-toggle-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.overlay-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.overlay-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: #555;
+}
+
+.overlay-field input[type="text"],
+.overlay-field input[type="file"],
+.overlay-field select {
+    min-height: 42px;
+    padding: 0 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    background: #fff;
+}
+
+.overlay-field input[type="range"] {
+    width: 100%;
+}
+
+.overlay-field input[type="color"] {
+    width: 60px;
+    height: 38px;
+    padding: 2px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+@media (min-width: 600px) {
+    .overlay-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .overlay-field {
+        flex: 1 1 160px;
+    }
+}
+
+
+/* =====================================================
+   OVERLAY LIVE PREVIEW (on top of the video element)
+   Approximate only — not what FFmpeg actually renders.
+===================================================== */
+
+.overlay-preview-el {
+    position: absolute;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.image-overlay-preview {
+    max-width: 30%;
+    max-height: 30%;
+    object-fit: contain;
+}
+
+.text-overlay-preview {
+    max-width: 70%;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    font-weight: 700;
+    line-height: 1.3;
+    word-break: break-word;
+    white-space: pre-wrap;
 }

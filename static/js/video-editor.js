@@ -60,6 +60,25 @@ const selectionRegion = document.getElementById("selectionRegion");
 const uploadWarning = document.getElementById("uploadWarning");
 const editorWarning = document.getElementById("editorWarning");
 
+// New: image + text overlay controls (applied across the whole clip).
+const videoPreviewContainer = document.querySelector(".video-preview-container");
+
+const imageOverlayToggle = document.getElementById("imageOverlayToggle");
+const imageOverlayControls = document.getElementById("imageOverlayControls");
+const imageOverlayInput = document.getElementById("imageOverlayInput");
+const imageOverlayPosition = document.getElementById("imageOverlayPosition");
+const imageOverlaySize = document.getElementById("imageOverlaySize");
+const imageOverlayOpacity = document.getElementById("imageOverlayOpacity");
+const imageOverlayPreviewEl = document.getElementById("imageOverlayPreviewEl");
+
+const textOverlayToggle = document.getElementById("textOverlayToggle");
+const textOverlayControls = document.getElementById("textOverlayControls");
+const textOverlayInput = document.getElementById("textOverlayInput");
+const textOverlayPosition = document.getElementById("textOverlayPosition");
+const textOverlayColor = document.getElementById("textOverlayColor");
+const textOverlaySize = document.getElementById("textOverlaySize");
+const textOverlayPreviewEl = document.getElementById("textOverlayPreviewEl");
+
 
 /* =====================================================
    CONFIGURATION
@@ -91,6 +110,60 @@ const HARD_MAX_DURATION_SECONDS = 3 * 60 * 60; // 3 hours (sanity cap)
 
 const FFMPEG_LOAD_TIMEOUT_MS = 45_000;
 
+// Overlay feature configuration.
+// A self-hosted font would be ideal (see the same-origin worker fix
+// earlier in this file for why), but drawtext's fontfile is just a
+// network fetch done by the worker, not a Worker-construction call — so
+// it isn't subject to the same cross-origin restriction and a CDN font is
+// fine here. DejaVu Sans is permissively licensed (Bitstream Vera-derived)
+// and jsDelivr serves npm package files with CORS enabled for everyone.
+const OVERLAY_FONT_URL = "https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans-Bold.ttf";
+const OVERLAY_FONT_FS_NAME = "overlay-font.ttf";
+const OVERLAY_TEXT_FS_NAME = "overlay-caption.txt";
+
+// Fixed pixel widths keep the overlay filter graph simple (no scale2ref
+// needed). The overlay image is scaled to this width, aspect preserved.
+const IMAGE_OVERLAY_SIZE_PX = {
+    small: 120,
+    medium: 220,
+    large: 340
+};
+
+// Position presets shared by both overlays. Each returns ffmpeg filter
+// expressions for x/y given the variable names used by that filter
+// (overlay: main_w/main_h/overlay_w/overlay_h — drawtext: w/h/text_w/text_h).
+const OVERLAY_POSITIONS = {
+    "top-left": {
+        overlay: { x: "20", y: "20" },
+        drawtext: { x: "20", y: "20" }
+    },
+    "top-right": {
+        overlay: { x: "main_w-overlay_w-20", y: "20" },
+        drawtext: { x: "w-text_w-20", y: "20" }
+    },
+    "bottom-left": {
+        overlay: { x: "20", y: "main_h-overlay_h-20" },
+        drawtext: { x: "20", y: "h-text_h-20" }
+    },
+    "bottom-right": {
+        overlay: { x: "main_w-overlay_w-20", y: "main_h-overlay_h-20" },
+        drawtext: { x: "w-text_w-20", y: "h-text_h-20" }
+    },
+    "center": {
+        overlay: { x: "(main_w-overlay_w)/2", y: "(main_h-overlay_h)/2" },
+        drawtext: { x: "(w-text_w)/2", y: "(h-text_h)/2" }
+    }
+};
+
+// CSS-side equivalents for the live on-page preview (not sent to FFmpeg).
+const OVERLAY_POSITION_CSS = {
+    "top-left": { top: "16px", left: "16px", right: "auto", bottom: "auto", transform: "none" },
+    "top-right": { top: "16px", right: "16px", left: "auto", bottom: "auto", transform: "none" },
+    "bottom-left": { bottom: "16px", left: "16px", top: "auto", right: "auto", transform: "none" },
+    "bottom-right": { bottom: "16px", right: "16px", top: "auto", left: "auto", transform: "none" },
+    "center": { top: "50%", left: "50%", right: "auto", bottom: "auto", transform: "translate(-50%, -50%)" }
+};
+
 
 /* =====================================================
    APPLICATION STATE
@@ -115,6 +188,12 @@ let previewStopHandler = null;
 
 let currentInputName = null;
 let currentOutputName = null;
+
+// Overlay state — persists across trim resets, cleared on "Choose Another Video".
+let imageOverlayFile = null;
+let imageOverlayPreviewURL = null;
+let fontBytesCache = null; // cached after first fetch, reused across exports
+let currentOverlayImageName = null;
 
 
 /* =====================================================
@@ -188,6 +267,11 @@ function getFriendlyErrorMessage(error) {
 
     if (lower.includes("network") || lower.includes("failed to fetch")) {
         return "A network problem interrupted loading the video engine. Check your connection and try again.";
+    }
+
+    if (lower.includes("filter") || lower.includes("drawtext") || lower.includes("overlay")) {
+        return "There was a problem applying the image or text overlay. Try a smaller image, " +
+            "shorter text, or turn one overlay off and export again.";
     }
 
     if (lower.includes("timed out")) {
@@ -696,6 +780,134 @@ resetButton.addEventListener("click", function () {
 
 
 /* =====================================================
+   OVERLAY CONTROLS
+   Wiring for the toggle sections, live on-page preview,
+   and cleanup of the overlay image object URL.
+===================================================== */
+
+imageOverlayToggle.addEventListener("change", function () {
+    imageOverlayControls.classList.toggle("hidden", !this.checked);
+    updateImageOverlayPreview();
+});
+
+imageOverlayInput.addEventListener("change", function () {
+
+    if (imageOverlayPreviewURL) {
+        URL.revokeObjectURL(imageOverlayPreviewURL);
+        imageOverlayPreviewURL = null;
+    }
+
+    const file = this.files && this.files[0];
+    imageOverlayFile = file || null;
+
+    if (file) {
+        imageOverlayPreviewURL = URL.createObjectURL(file);
+    }
+
+    updateImageOverlayPreview();
+});
+
+imageOverlayPosition.addEventListener("change", updateImageOverlayPreview);
+imageOverlaySize.addEventListener("change", updateImageOverlayPreview);
+imageOverlayOpacity.addEventListener("input", updateImageOverlayPreview);
+
+function updateImageOverlayPreview() {
+
+    const enabled = imageOverlayToggle.checked && imageOverlayPreviewURL;
+
+    if (!enabled) {
+        imageOverlayPreviewEl.classList.add("hidden");
+        imageOverlayPreviewEl.removeAttribute("src");
+        return;
+    }
+
+    imageOverlayPreviewEl.src = imageOverlayPreviewURL;
+    imageOverlayPreviewEl.style.opacity = imageOverlayOpacity.value;
+
+    applyPreviewPosition(imageOverlayPreviewEl, imageOverlayPosition.value);
+
+    imageOverlayPreviewEl.classList.remove("hidden");
+}
+
+textOverlayToggle.addEventListener("change", function () {
+    textOverlayControls.classList.toggle("hidden", !this.checked);
+    updateTextOverlayPreview();
+});
+
+textOverlayInput.addEventListener("input", updateTextOverlayPreview);
+textOverlayPosition.addEventListener("change", updateTextOverlayPreview);
+textOverlayColor.addEventListener("input", updateTextOverlayPreview);
+textOverlaySize.addEventListener("input", updateTextOverlayPreview);
+
+function updateTextOverlayPreview() {
+
+    const text = textOverlayInput.value.trim();
+    const enabled = textOverlayToggle.checked && text.length > 0;
+
+    if (!enabled) {
+        textOverlayPreviewEl.classList.add("hidden");
+        return;
+    }
+
+    textOverlayPreviewEl.textContent = text;
+    textOverlayPreviewEl.style.color = textOverlayColor.value;
+
+    // Scale preview font size roughly to the on-screen preview width vs
+    // the video's real resolution so it's a reasonable approximation, not
+    // an exact match (the export uses the real resolution's pixel size).
+    const previewScale = videoPreview.clientWidth && videoPreview.videoWidth
+        ? videoPreview.clientWidth / videoPreview.videoWidth
+        : 1;
+
+    textOverlayPreviewEl.style.fontSize =
+        `${Math.max(10, Number(textOverlaySize.value) * previewScale)}px`;
+
+    applyPreviewPosition(textOverlayPreviewEl, textOverlayPosition.value);
+
+    textOverlayPreviewEl.classList.remove("hidden");
+}
+
+function applyPreviewPosition(el, positionKey) {
+    const pos = OVERLAY_POSITION_CSS[positionKey] || OVERLAY_POSITION_CSS["top-left"];
+    el.style.top = pos.top;
+    el.style.left = pos.left;
+    el.style.right = pos.right;
+    el.style.bottom = pos.bottom;
+    el.style.transform = pos.transform;
+}
+
+function resetOverlayState() {
+
+    imageOverlayToggle.checked = false;
+    imageOverlayControls.classList.add("hidden");
+    imageOverlayInput.value = "";
+    imageOverlayPosition.value = "top-right";
+    imageOverlaySize.value = "medium";
+    imageOverlayOpacity.value = "1";
+
+    if (imageOverlayPreviewURL) {
+        URL.revokeObjectURL(imageOverlayPreviewURL);
+    }
+    imageOverlayPreviewURL = null;
+    imageOverlayFile = null;
+
+    textOverlayToggle.checked = false;
+    textOverlayControls.classList.add("hidden");
+    textOverlayInput.value = "";
+    textOverlayPosition.value = "bottom-right";
+    textOverlayColor.value = "#ffffff";
+    textOverlaySize.value = "32";
+
+    updateImageOverlayPreview();
+    updateTextOverlayPreview();
+}
+
+// Re-run once metadata loads so the font-scaled text preview lines up with
+// the actual video dimensions rather than assuming a 1:1 scale.
+videoPreview.addEventListener("loadedmetadata", updateTextOverlayPreview);
+
+
+/* =====================================================
    EXPORT VIDEO
 ===================================================== */
 
@@ -760,6 +972,125 @@ async function detectAudioStream(inputName) {
 
 
 /* =====================================================
+   OVERLAY FILTER BUILDING
+===================================================== */
+
+async function ensureFontLoaded() {
+    if (fontBytesCache) {
+        return fontBytesCache;
+    }
+    fontBytesCache = await fetchFile(OVERLAY_FONT_URL);
+    return fontBytesCache;
+}
+
+function getImageOverlaySettings() {
+    if (!imageOverlayToggle.checked || !imageOverlayFile) {
+        return null;
+    }
+    return {
+        file: imageOverlayFile,
+        position: imageOverlayPosition.value,
+        widthPx: IMAGE_OVERLAY_SIZE_PX[imageOverlaySize.value] || IMAGE_OVERLAY_SIZE_PX.medium,
+        opacity: Number(imageOverlayOpacity.value) || 1
+    };
+}
+
+function getTextOverlaySettings() {
+    const text = textOverlayInput.value.trim();
+    if (!textOverlayToggle.checked || !text) {
+        return null;
+    }
+    return {
+        text,
+        position: textOverlayPosition.value,
+        color: textOverlayColor.value,
+        fontSize: Number(textOverlaySize.value) || 32
+    };
+}
+
+/**
+ * Writes whatever overlay assets are needed into the FFmpeg virtual
+ * filesystem and returns everything startExport needs to assemble the
+ * command: extra -i inputs, the filter_complex string, the label to map
+ * as output video, and the list of written filenames (for cleanup).
+ */
+async function prepareOverlayAssets(imageSettings, textSettings) {
+
+    const extraInputs = [];
+    const filterParts = [];
+    const writtenFiles = [];
+
+    let lastLabel = "0:v";
+    let nextInputIndex = 1;
+
+    if (imageSettings) {
+
+        const ext = getFileExtension(imageSettings.file.name) || "png";
+        const overlayImageName = `overlay-image.${ext}`;
+
+        await ffmpeg.writeFile(overlayImageName, await fetchFile(imageSettings.file));
+        writtenFiles.push(overlayImageName);
+        currentOverlayImageName = overlayImageName;
+
+        // `-loop 1` is essential here: without it, ffmpeg treats the
+        // image as a single-frame input, so the watermark would only
+        // appear in the first output frame instead of across the whole
+        // clip. Looping makes it behave like a continuous video source.
+        extraInputs.push("-loop", "1", "-i", overlayImageName);
+
+        const pos = OVERLAY_POSITIONS[imageSettings.position] || OVERLAY_POSITIONS["top-right"];
+        const scaledLabel = "wm";
+        const composedLabel = "ovimg";
+
+        filterParts.push(
+            `[${nextInputIndex}:v]scale=${imageSettings.widthPx}:-1,format=rgba,` +
+            `colorchannelmixer=aa=${imageSettings.opacity}[${scaledLabel}]`
+        );
+        filterParts.push(
+            `[${lastLabel}][${scaledLabel}]overlay=${pos.overlay.x}:${pos.overlay.y}[${composedLabel}]`
+        );
+
+        lastLabel = composedLabel;
+        nextInputIndex++;
+    }
+
+    if (textSettings) {
+
+        const fontBytes = await ensureFontLoaded();
+        await ffmpeg.writeFile(OVERLAY_FONT_FS_NAME, fontBytes);
+        writtenFiles.push(OVERLAY_FONT_FS_NAME);
+
+        // Written as a file (textfile=...) rather than inlined into the
+        // filter string — this sidesteps FFmpeg filtergraph escaping
+        // rules entirely (colons, quotes, backslashes, % signs in the
+        // user's caption would otherwise need careful escaping).
+        await ffmpeg.writeFile(OVERLAY_TEXT_FS_NAME, textSettings.text);
+        writtenFiles.push(OVERLAY_TEXT_FS_NAME);
+
+        const pos = OVERLAY_POSITIONS[textSettings.position] || OVERLAY_POSITIONS["bottom-right"];
+        const composedLabel = "ovtext";
+
+        filterParts.push(
+            `[${lastLabel}]drawtext=fontfile=${OVERLAY_FONT_FS_NAME}:` +
+            `textfile=${OVERLAY_TEXT_FS_NAME}:` +
+            `fontsize=${textSettings.fontSize}:fontcolor=${textSettings.color}:` +
+            `x=${pos.drawtext.x}:y=${pos.drawtext.y}:` +
+            `box=1:boxcolor=black@0.4:boxborderw=6[${composedLabel}]`
+        );
+
+        lastLabel = composedLabel;
+    }
+
+    return {
+        extraInputs,
+        filterComplex: filterParts.join(";"),
+        outputLabel: lastLabel,
+        writtenFiles
+    };
+}
+
+
+/* =====================================================
    START EXPORT
 ===================================================== */
 
@@ -783,6 +1114,12 @@ async function startExport(start, end) {
 
     currentInputName = inputName;
     currentOutputName = outputName;
+
+    const imageSettings = getImageOverlaySettings();
+    const textSettings = getTextOverlaySettings();
+    const hasOverlays = Boolean(imageSettings || textSettings);
+
+    let overlayFiles = [];
 
     try {
 
@@ -812,19 +1149,55 @@ async function startExport(start, end) {
             ? ["-c:a", "aac", "-b:a", "128k"]
             : ["-an"];
 
-        exportStatus.textContent = "Processing video...";
+        let execArgs;
 
-        await ffmpeg.exec([
-            "-ss", String(start),
-            "-i", inputName,
-            "-t", String(clipDuration),
-            "-c:v", "libx264",
-            "-preset", "ultrafast",
-            "-crf", "23",
-            ...audioArgs,
-            "-movflags", "+faststart",
-            outputName
-        ]);
+        if (hasOverlays) {
+
+            exportStatus.textContent = "Preparing overlays...";
+
+            const overlay = await prepareOverlayAssets(imageSettings, textSettings);
+            overlayFiles = overlay.writtenFiles;
+
+            if (cancelRequested) {
+                throw new Error("terminated");
+            }
+
+            exportStatus.textContent = "Processing video...";
+
+            execArgs = [
+                "-ss", String(start),
+                "-i", inputName,
+                ...overlay.extraInputs,
+                "-t", String(clipDuration),
+                "-filter_complex", overlay.filterComplex,
+                "-map", `[${overlay.outputLabel}]`,
+                ...(hasAudio ? ["-map", "0:a"] : []),
+                "-c:v", "libx264",
+                "-preset", "ultrafast",
+                "-crf", "23",
+                ...audioArgs,
+                "-movflags", "+faststart",
+                outputName
+            ];
+
+        } else {
+
+            exportStatus.textContent = "Processing video...";
+
+            execArgs = [
+                "-ss", String(start),
+                "-i", inputName,
+                "-t", String(clipDuration),
+                "-c:v", "libx264",
+                "-preset", "ultrafast",
+                "-crf", "23",
+                ...audioArgs,
+                "-movflags", "+faststart",
+                outputName
+            ];
+        }
+
+        await ffmpeg.exec(execArgs);
 
         if (cancelRequested) {
             throw new Error("terminated");
@@ -862,8 +1235,13 @@ async function startExport(start, end) {
         await safeDeleteFile(inputName);
         await safeDeleteFile(outputName);
 
+        for (const name of overlayFiles) {
+            await safeDeleteFile(name);
+        }
+
         currentInputName = null;
         currentOutputName = null;
+        currentOverlayImageName = null;
 
         isProcessing = false;
         cancelRequested = false;
@@ -956,6 +1334,7 @@ newVideoButton.addEventListener("click", function () {
 
     cleanupOutput();
     resetFFmpegFilesystemState();
+    resetOverlayState();
 
     videoPreview.pause();
 
@@ -1024,6 +1403,7 @@ function resetFFmpegFilesystemState() {
     if (!ffmpeg || !ffmpegLoaded) {
         currentInputName = null;
         currentOutputName = null;
+        currentOverlayImageName = null;
         return;
     }
 
@@ -1033,9 +1413,15 @@ function resetFFmpegFilesystemState() {
     if (currentOutputName) {
         safeDeleteFile(currentOutputName);
     }
+    if (currentOverlayImageName) {
+        safeDeleteFile(currentOverlayImageName);
+    }
+    safeDeleteFile(OVERLAY_FONT_FS_NAME);
+    safeDeleteFile(OVERLAY_TEXT_FS_NAME);
 
     currentInputName = null;
     currentOutputName = null;
+    currentOverlayImageName = null;
 }
 
 
@@ -1146,6 +1532,9 @@ window.addEventListener("beforeunload", function () {
     cleanupOutput();
     if (videoURL) {
         URL.revokeObjectURL(videoURL);
+    }
+    if (imageOverlayPreviewURL) {
+        URL.revokeObjectURL(imageOverlayPreviewURL);
     }
     if (ffmpeg) {
         try {
