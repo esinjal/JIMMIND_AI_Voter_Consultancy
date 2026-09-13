@@ -860,6 +860,7 @@ function renderLayerCard(layer) {
     const card = document.createElement("div");
     card.className = "layer-card";
     card.dataset.layerId = String(layer.id);
+    card.dataset.layerType = layer.type;
 
     const header = document.createElement("div");
     header.className = "layer-card-header";
