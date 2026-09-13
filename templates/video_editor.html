@@ -96,10 +96,9 @@
 
                     <video id="videoPreview" playsinline controls></video>
 
-                    <!-- Live approximation of where overlays will land.
-                         Not rendered by FFmpeg — purely visual guidance. -->
-                    <img id="imageOverlayPreviewEl" class="overlay-preview-el image-overlay-preview hidden" alt="">
-                    <div id="textOverlayPreviewEl" class="overlay-preview-el text-overlay-preview hidden"></div>
+                    <!-- Draggable overlay layer previews are injected here
+                         by JS (one per layer). Purely visual guidance —
+                         not what FFmpeg actually renders. -->
 
                 </div>
 
@@ -249,97 +248,31 @@
 
 
                 <!-- =========================
-                     OVERLAYS (image + text, applied to the whole clip)
+                     OVERLAYS (image + text layers — drag to
+                     position, resize freely, set a time range)
                 ========================== -->
 
                 <div class="overlay-section">
 
                     <h2>Overlays</h2>
-                    <p>Added across the whole exported clip.</p>
+                    <p>Add as many image or text layers as you like. Drag them on the
+                        preview above to position; each has its own size and time range.</p>
 
-                    <!-- IMAGE OVERLAY -->
-                    <div class="overlay-group">
-
-                        <label class="overlay-toggle-row">
-                            <input type="checkbox" id="imageOverlayToggle">
-                            <span>Add image / logo overlay</span>
-                        </label>
-
-                        <div id="imageOverlayControls" class="overlay-controls hidden">
-
-                            <label class="overlay-field">
-                                <span>Image</span>
-                                <input type="file" id="imageOverlayInput" accept="image/png,image/jpeg,image/webp">
-                            </label>
-
-                            <label class="overlay-field">
-                                <span>Position</span>
-                                <select id="imageOverlayPosition">
-                                    <option value="top-left">Top left</option>
-                                    <option value="top-right" selected>Top right</option>
-                                    <option value="bottom-left">Bottom left</option>
-                                    <option value="bottom-right">Bottom right</option>
-                                    <option value="center">Center</option>
-                                </select>
-                            </label>
-
-                            <label class="overlay-field">
-                                <span>Size</span>
-                                <select id="imageOverlaySize">
-                                    <option value="small">Small</option>
-                                    <option value="medium" selected>Medium</option>
-                                    <option value="large">Large</option>
-                                </select>
-                            </label>
-
-                            <label class="overlay-field">
-                                <span>Opacity</span>
-                                <input type="range" id="imageOverlayOpacity" min="0.1" max="1" step="0.05" value="1">
-                            </label>
-
-                        </div>
-
+                    <div class="overlay-add-buttons">
+                        <button id="addImageOverlayButton" class="secondary-button" type="button">
+                            + Add Image
+                        </button>
+                        <button id="addTextOverlayButton" class="secondary-button" type="button">
+                            + Add Text
+                        </button>
                     </div>
 
-                    <!-- TEXT OVERLAY -->
-                    <div class="overlay-group">
+                    <input type="file" id="addImageOverlayInput" accept="image/png,image/jpeg,image/webp" hidden>
 
-                        <label class="overlay-toggle-row">
-                            <input type="checkbox" id="textOverlayToggle">
-                            <span>Add text overlay</span>
-                        </label>
+                    <p id="layerCountWarning" class="file-banner warning hidden" role="status"></p>
 
-                        <div id="textOverlayControls" class="overlay-controls hidden">
-
-                            <label class="overlay-field">
-                                <span>Text</span>
-                                <input type="text" id="textOverlayInput" maxlength="120" placeholder="Your caption">
-                            </label>
-
-                            <label class="overlay-field">
-                                <span>Position</span>
-                                <select id="textOverlayPosition">
-                                    <option value="top-left">Top left</option>
-                                    <option value="top-right">Top right</option>
-                                    <option value="bottom-left">Bottom left</option>
-                                    <option value="bottom-right" selected>Bottom right</option>
-                                    <option value="center">Center</option>
-                                </select>
-                            </label>
-
-                            <label class="overlay-field">
-                                <span>Color</span>
-                                <input type="color" id="textOverlayColor" value="#ffffff">
-                            </label>
-
-                            <label class="overlay-field">
-                                <span>Size</span>
-                                <input type="range" id="textOverlaySize" min="16" max="72" step="1" value="32">
-                            </label>
-
-                        </div>
-
-                    </div>
+                    <!-- One .layer-card per layer, built by JS -->
+                    <div id="overlayLayersList" class="overlay-layers-list"></div>
 
                 </div>
 
